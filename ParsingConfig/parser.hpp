@@ -18,6 +18,50 @@
 #define ON 1
 #define OFF 2
 
+
+struct bool_server {
+    bool listen;
+    bool error_pages;
+    bool upload_path;
+    bool cgi;
+    bool server_name;
+    bool locations;
+};
+
+struct bool_location {
+    bool methods;
+    bool root;
+    bool autoindex;
+    bool index;
+    bool path;
+};
+
+class Location
+{
+public:
+    bool_location               yes_no;
+    std::vector<std::string>    methods;
+    std::string                 root;
+    int                         autoindex;
+    std::string                 index;
+
+    Location();
+};
+
+class Server
+{
+public :
+    bool_server                         yes_or_no;
+    int                                 listen;
+    std::string                         server_name;
+    std::map<int, std::string>          error_pages;
+    std::string                         upload_path;
+    std::map<std::string, std::string>  cgi;
+    std::map<std::string, Location>     location;
+
+    Server();
+};
+
 ////////////////////////////////////////////
 ////////////////holder class ///////////////
 ////////////////////////////////////////////
@@ -60,15 +104,16 @@ public:
 
 };
 
+
 ////////////////////////////////////////////
 #define GO_TO_DEFAULT
 /////////////////////////////////
 
 
 void                        Error_msg(const char *message);
-std::string                 read_file();
+std::string                 read_file(const char *file_path);
 std::vector<std::string>    split_with_string(const std::string& to_split, const std::string delimiter);
-std::vector<std::string>    take_strings_to_parse();
+std::vector<std::string>    take_strings_to_parse(const char *file_path);
 Server                      parse_data(Holder& holder);
 std::vector<std::string>    split_with_char(std::string str, char delimiter);
 bool                        check_is_digit(std::string tmp);
