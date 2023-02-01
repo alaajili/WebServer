@@ -4,7 +4,7 @@
 
 #include "parser.hpp"
 
-void    Error_mssg(const char *message)
+void    Error_msg(const char *message)
 {
     std::cout << message << std::endl;
     exit(1);
@@ -17,7 +17,7 @@ std::string read_file(const char *file_path)
 
     std::fstream file(file_path);
     if(file.fail())
-        Error_mssg("fail to read from server config");
+        Error_msg("fail to read from server config");
     while(std::getline(file, line))
     {
         to_parse += line;
@@ -33,7 +33,7 @@ std::vector<std::string> split_with_string(const std::string& to_split, const st
 {
     std::vector<std::string>    return_value;
     std::size_t                 start = 0;
-    std::size_t                 end = 0;
+    std::size_t                 end;
     while((end = to_split.find(delimiter, start)) != std::string::npos)
     {
         return_value.push_back(to_split.substr(start, end - start));
@@ -44,20 +44,20 @@ std::vector<std::string> split_with_string(const std::string& to_split, const st
 }
 
 ///////////split with character///////////////////////////////////
-std::vector<std::string> split_with_char(std::string str, char delemiter)
+std::vector<std::string> split_with_char(std::string str, char delimiter)
 {
     size_t start = 0;
-    size_t end = 0;
+    size_t end;
     std::vector<std::string> return_value;
 
     while (str[start])
     {
-        while(str[start] && str[start] == delemiter)
+        while(str[start] && str[start] == delimiter)
             start++;
         if(!str[start])
             break;
         end = start;
-        while(str[end] && str[end] != delemiter)
+        while(str[end] && str[end] != delimiter)
             end++;
         return_value.push_back(str.substr(start, end - start));
         start = end;
@@ -68,14 +68,14 @@ std::vector<std::string> split_with_char(std::string str, char delemiter)
 std::vector<std::string> take_strings_to_parse(const char *file_path)
 {
     std::string To_parse = read_file(file_path);
-    std::string delemiter = "server_name";
+    std::string delimiter = "server_name";
     std::size_t start = 0;
-    std::size_t end = 0;
+    std::size_t end;
 
-    while((end = To_parse.find(delemiter, start)) != std::string::npos)
+    while((end = To_parse.find(delimiter, start)) != std::string::npos)
     {
-        To_parse.replace(end, delemiter.length(), "name");
-        start = end + delemiter.length();
+        To_parse.replace(end, delimiter.length(), "name");
+        start = end + delimiter.length();
     }
     std::vector<std::string> spl = split_with_string(To_parse, "server");
     spl.erase(spl.begin());

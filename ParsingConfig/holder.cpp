@@ -210,7 +210,7 @@ std::vector<std::string> Holder::pick_methods()
 {
     skip_spaces();
     std::string tmp = take_id_();
-    std::vector<std::string> methods = split_with_carac(tmp, ' ');
+    std::vector<std::string> methods = split_with_char(tmp, ' ');
     if(methods.size() > (size_t)4)
         print_error("you can enter only 3 methods");
     for(size_t counter = 0; counter < methods.size(); counter++)
@@ -240,6 +240,15 @@ std::string  Holder::pick_index()
     return index;
 }
 
+/////////////////take host//////////////////
+std::string Holder::take_host()
+{
+    skip_spaces();
+    std::string host = take_id();
+    skip_all();
+    return host;
+}
+
 ///////////////take server name//////////////////
 std::string Holder::take_server_name()
 {
@@ -252,13 +261,13 @@ std::string Holder::take_server_name()
 ///////////////pick autoindex//////////////////
 int Holder::pick_autoindex()
 {
-    int     return_value;
+    int     return_value = 0;
 
     skip_spaces();
     std::string autoindex = take_id();
-    if(autoindex == "on")
+    if (autoindex == "on")
         return_value = ON;
-    else if(autoindex == "off")
+    else if (autoindex == "off")
         return_value = OFF;
     else
         print_error("use ON or OFF only to define your autoindex");

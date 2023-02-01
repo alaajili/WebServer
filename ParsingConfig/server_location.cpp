@@ -6,7 +6,8 @@
 
 Server::Server()
 {
-    yes_or_no.listen = false;
+    yes_or_no.port = false;
+    yes_or_no.host = false;
     yes_or_no.error_pages = false;
     yes_or_no.upload_path = false;
     yes_or_no.cgi = false;
