@@ -20,7 +20,8 @@
 
 
 struct bool_server {
-    bool listen;
+    bool port;
+    bool host;
     bool error_pages;
     bool upload_path;
     bool cgi;
@@ -52,7 +53,8 @@ class Server
 {
 public :
     bool_server                         yes_or_no;
-    int                                 listen;
+    int                                 port;
+    std::string                         host;
     std::string                         server_name;
     std::map<int, std::string>          error_pages;
     std::string                         upload_path;
@@ -90,6 +92,7 @@ public:
 
     //////server///////////
     size_t                      take_port();
+    std::string                 take_host();
     std::map<int, std::string>  take_error_pages();
     std::string                 take_upload_path();
     void                        take_cgi();
@@ -118,6 +121,7 @@ Server                      parse_data(Holder& holder);
 std::vector<std::string>    split_with_char(std::string str, char delimiter);
 bool                        check_is_digit(std::string tmp);
 void                        print_error(std::string error);
+std::vector<Server>         parse_conf_file(const char *file_path);
 
 
 #endif //WEBSERVER_PARSER_HPP

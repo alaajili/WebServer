@@ -4,9 +4,9 @@
 
 #include "parser.hpp"
 
-std::vector<server> parse_conf_file(const char *file_path)
+std::vector<Server> parse_conf_file(const char *file_path)
 {
-    std::vector<std::string>    st = take_strings_to_parse();
+    std::vector<std::string>    st = take_strings_to_parse(file_path);
     std::vector<Server>         servers;
 
     for (size_t i = 0; i < st.size(); i++)
@@ -27,22 +27,22 @@ Location    take_location(Holder &holder)
     {
         id = holder.take_id();
         holder.skip_all();
-        if (id == "allow_methods" && loc.yes_no.methods == false)
+        if (id == "allow_methods")
         {
             loc.yes_no.methods = true;
             loc.methods = holder.pick_methods();
         }
-        else if (id == "root" && loc.yes_no.root == false)
+        else if (id == "root")
         {
             loc.yes_no.root = true;
             loc.root = holder.pick_root();
         }
-        else if (id == "autoindex" && loc.yes_no.autoindex == false)
+        else if (id == "autoindex")
         {
             loc.yes_no.autoindex = true;
             loc.autoindex = holder.pick_autoindex();
         }
-        else if (id == "index" && loc.yes_no.index == false)
+        else if (id == "index")
         {
             loc.yes_no.index = true;
             loc.index = holder.pick_index();
@@ -66,17 +66,22 @@ Server  parse_data(Holder& holder)
         holder.skip_all();
         id = holder.take_id();
         std::cout<< id <<std::endl;
-        if (id == "listen" && server.yes_or_no.listen == false)
+        if (id == "port")
         {
-            server.yes_or_no.listen = true;
-            server.listen = holder.take_port();
+            server.yes_or_no.port = true;
+            server.port = holder.take_port();
         }
-        else if (id == "error_page" && server.yes_or_no.error_pages == false)
+        else if (id == "host")
+        {
+            server.yes_or_no.host = true;
+            server.host = holder.take_host();
+        }
+        else if (id == "error_page")
         {
             server.yes_or_no.error_pages = true;
             server.error_pages = holder.take_error_pages();
         }
-        else if (id == "upload_path" && server.yes_or_no.upload_path == false)
+        else if (id == "upload_path")
         {
             server.yes_or_no.upload_path = true;
             server.upload_path = holder.take_upload_path();
@@ -86,7 +91,7 @@ Server  parse_data(Holder& holder)
             server.yes_or_no.cgi = true;
             holder.take_cgi();
         }
-        else if (id == "name" && server.yes_or_no.server_name == false)
+        else if (id == "name")
         {
             server.yes_or_no.server_name = true;
             server.server_name = holder.take_server_name();
@@ -108,5 +113,6 @@ Server  parse_data(Holder& holder)
         server.location = holder.location;
     if (server.yes_or_no.cgi == true)
         server.cgi = holder.tmp;
+
     return server;
 }
