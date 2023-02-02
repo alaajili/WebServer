@@ -14,10 +14,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6426c7be-d10d-400c-b2fa-e33eaca1e578" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ParsingConfig/holder.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParsingConfig/holder.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ParsingConfig/parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParsingConfig/parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ParsingConfig/parser.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParsingConfig/parser.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/default.conf" beforeDir="false" afterPath="$PROJECT_DIR$/default.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webserv.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/webserv.cpp" afterDir="false" />
     </list>
@@ -72,7 +68,13 @@
       <workItem from="1675184822574" duration="4636000" />
       <workItem from="1675192630089" duration="5360000" />
       <workItem from="1675271786905" duration="1430000" />
-      <workItem from="1675279295416" duration="642000" />
+      <workItem from="1675279295416" duration="2002000" />
+      <workItem from="1675291184904" duration="1000" />
+      <workItem from="1675340298737" duration="124000" />
+      <workItem from="1675351083368" duration="1841000" />
+      <workItem from="1675361530827" duration="301000" />
+      <workItem from="1675365106393" duration="4000" />
+      <workItem from="1675374936058" duration="117000" />
     </task>
     <servers />
   </component>
