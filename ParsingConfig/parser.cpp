@@ -65,7 +65,6 @@ Server  parse_data(Holder& holder)
     {
         holder.skip_all();
         id = holder.take_id();
-        std::cout<< id <<std::endl;
         if (id == "port")
         {
             server.yes_or_no.port = true;
@@ -107,12 +106,11 @@ Server  parse_data(Holder& holder)
             break;
         else
             print_error("error");
+
     }
-    std::cout << "here" << std::endl;
     if (server.yes_or_no.locations == true)
         server.location = holder.location;
     if (server.yes_or_no.cgi == true)
         server.cgi = holder.tmp;
-
     return server;
 }

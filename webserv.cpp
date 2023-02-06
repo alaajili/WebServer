@@ -18,7 +18,11 @@ int main(int ac, char **av)
     std::cout << servers[0].host << std::endl;
     std::cout << servers[0].server_name << std::endl;
 
-    handle_requests(servers);
+    init_sockets(servers);
+    for (size_t i = 0; i < servers.size(); i++) {
+        std::cout << servers[i].sock_fd << std::endl;
+    }
+    // handle_requests(servers);
 
 
     return 0;
