@@ -13,10 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6426c7be-d10d-400c-b2fa-e33eaca1e578" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Request/request.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/default.conf" beforeDir="false" afterPath="$PROJECT_DIR$/default.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webserv.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/webserv.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ParsingConfig/parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ParsingConfig/parser.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +91,7 @@
       <workItem from="1675443954206" duration="783000" />
       <workItem from="1675690206249" duration="1745000" />
       <workItem from="1675697640718" duration="674000" />
-      <workItem from="1675698621319" duration="5045000" />
+      <workItem from="1675698621319" duration="6071000" />
     </task>
     <servers />
   </component>

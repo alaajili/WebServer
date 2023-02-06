@@ -100,7 +100,6 @@ Server  parse_data(Holder& holder)
             server.yes_or_no.locations = true;
             std::string loc = holder.take_loc_path();
             holder.location[loc] = take_location(holder);
-            std::cout << holder.am_here << std::endl;
         }
         else if (id == "}")
             break;
