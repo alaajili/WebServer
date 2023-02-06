@@ -61,6 +61,8 @@ public :
     std::map<std::string, std::string>  cgi;
     std::map<std::string, Location>     location;
 
+    int                                 sock_fd;
+
     Server();
 };
 

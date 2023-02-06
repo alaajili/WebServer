@@ -14,8 +14,14 @@
 #include <netdb.h>
 #include <unistd.h>
 
+class Server;
+//class Request {
+//
+//};
 
-void    handle_requests(const std::vector<Server>& servers);
+
+//void    handle_requests(const std::vector<Server>& servers);
+void    init_sockets(std::vector<Server>& servers);
 
 
 #endif //WEBSERVER_REQUEST_HPP
