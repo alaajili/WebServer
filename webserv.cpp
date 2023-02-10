@@ -14,12 +14,7 @@ int main(int ac, char **av)
         return 1;
     }
     servers = parse_conf_file(av[1]);
-
-    init_sockets(servers);
-    for (size_t i = 0; i < servers.size(); i++) {
-        std::cout << servers[i].sock_fd << std::endl;
-    }
-    // handle_requests(servers);
+	handle_requests(servers);
 
 
     return 0;

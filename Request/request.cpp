@@ -4,12 +4,13 @@
 
 #include "request.hpp"
 
-void    init_sockets(std::vector<Server>& servers)
+std::vector<int>	init_sockets(std::vector<Server>& servers)
 {
-    std::map<int, int> port_sock;
+	std::map<int, int>	port_sock;
+	std::vector<int>	sockets;
 
-    for (size_t i = 0; i < servers.size(); i++) {
-        struct sockaddr_in  address;
+	for (size_t i = 0; i < servers.size(); i++) {
+		struct sockaddr_in  address;
 
         if (port_sock.find(servers[i].port) == port_sock.end()) {
             servers[i].sock_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -30,10 +31,18 @@ void    init_sockets(std::vector<Server>& servers)
                 exit(1);
             }
             port_sock[servers[i].port] = servers[i].sock_fd;
+            sockets.push_back(servers[i].sock_fd);
         }
         else {
             servers[i].sock_fd = port_sock[servers[i].port];
         }
     }
+    return sockets;
 }
 
+void	handle_requests(std::vector<Server>& servers)
+{
+	std::vector<int>	sockets;
+
+	sockets = init_sockets(servers);
+}
