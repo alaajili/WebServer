@@ -40,9 +40,39 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
     return sockets;
 }
 
+void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
+						fd_set *read_fds, fd_set *write_fds)
+{
+	int max_socket;
+
+	FD_ZERO(read_fds);
+	FD_ZERO(write_fds);
+	for (size_t i = 0; i < sockets.size(); i++) {
+		FD_SET(sockets[i], read_fds);
+		FD_SET(sockets[i], write_fds);
+		if (sockets[i] > max_socket)
+			max_socket = sockets[i];
+	}
+	for (size_t i = 0; i < clients.size(); i++) {
+		FD_SET(clients[i].sock, read_fds);
+		FD_SET(clients[i].sock, write_fds);
+		if (sockets[i] > max_socket)
+			max_socket = sockets[i];
+	}
+	select(max_socket + 1, read_fds, write_fds, 0, 0);
+}
+
 void	handle_requests(std::vector<Server>& servers)
 {
-	std::vector<int>	sockets;
+	std::vector<int>			sockets;
+	std::vector<client_info>	clients;
 
 	sockets = init_sockets(servers);
+	while (1337)
+	{
+		fd_set						read_fds;
+		fd_set						write_fds;
+		wait_on_clients(sockets, clients, read_fds, write_fds);
+		
+	}
 }

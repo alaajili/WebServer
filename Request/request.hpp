@@ -15,9 +15,14 @@
 #include <unistd.h>
 
 class Server;
-//class Request {
-//
-//};
+
+
+struct client_info {
+	socklen_t				address_len;
+	struct sockaddr_storage	address;
+	int						sock;
+	std::string				request;
+};
 
 
 void	handle_requests(std::vector<Server>& servers);
