@@ -16,7 +16,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webserv.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/webserv.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,6 +38,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
@@ -95,7 +95,13 @@
       <workItem from="1675968485381" duration="846000" />
       <workItem from="1675982372670" duration="1015000" />
       <workItem from="1676034860554" duration="119000" />
-      <workItem from="1676039522622" duration="872000" />
+      <workItem from="1676039522622" duration="1008000" />
+      <workItem from="1676061262967" duration="222000" />
+      <workItem from="1676065720852" duration="209000" />
+      <workItem from="1676107593249" duration="2342000" />
+      <workItem from="1676120305053" duration="178000" />
+      <workItem from="1676128913140" duration="4330000" />
+      <workItem from="1676142209448" duration="4000" />
     </task>
     <servers />
   </component>
