@@ -56,13 +56,13 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 		if (sockets[i] > max_socket)
 			max_socket = sockets[i];
 	}
-	select(max_socket + 1, read_fds, write_fds, 0, 0);
+	select(max_socket + 1, read_fds, 0, 0, 0);
 }
 
 void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& clients,
 					fd_set *read_fds)
 {
-	for (size_t i = 0; i < sockets; i++) {
+	for (size_t i = 0; i < sockets.size(); i++) {
 		if (FD_ISSET(sockets[i], read_fds)) {
 			client_info	new_client;
 			new_client.address_len = sizeof new_client.address;
@@ -75,7 +75,13 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 
 void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 {
-
+	for (size_t i = 0; i < clients.size(); i++) {
+		if (FD_ISSET(clients[i].sock, read_fds)) {
+			char buff[1024];
+			recv(clients[i].sock, buff, 1024, 0);
+			std::cout << buff << std::endl;
+		}
+	}
 }
 
 void	handle_requests(std::vector<Server>& servers)
