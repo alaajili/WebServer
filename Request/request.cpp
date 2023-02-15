@@ -77,14 +77,10 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 {
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (FD_ISSET(clients[i].sock, read_fds)) {
-			std::cout << "HERE" << std::endl;
 			int r;
 			char buff[1024];
-			int c = 0;
 			while ((r = recv(clients[i].sock, buff, 1024, 0)) > 0) {
-				std::cout << "c --> " << c << std::endl;
 				clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
-				c++;
 			}
 		}
 	}
