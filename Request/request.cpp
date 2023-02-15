@@ -83,7 +83,7 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 			int c = 0;
 			while ((r = recv(clients[i].sock, buff, 1024, 0)) > 0) {
 				std::cout << "c --> " << c << std::endl;
-				clients[i].request.insert(clients[i].request.size(), buff, r);
+				clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
 				c++;
 			}
 		}
@@ -102,6 +102,6 @@ void	handle_requests(std::vector<Server>& servers)
 		wait_on_clients(sockets, clients, &read_fds);
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
-		parse_request(clients);
+		parse_requests(clients);
 	}
 }

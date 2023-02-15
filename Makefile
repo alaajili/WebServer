@@ -3,7 +3,7 @@
 #
 NAME = webserv
 SRCS = webserv.cpp ParsingConfig/holder.cpp ParsingConfig/parser.cpp ParsingConfig/read_from_conf.cpp \
-ParsingConfig/server_location.cpp Request/request.cpp
+ParsingConfig/server_location.cpp Request/request.cpp Request/request_parser.cpp
 OBJS = $(SRCS:.cpp=.o)
 CC = c++
 CPPFLAGS = -Wall -Werror -Wextra -std=c++98
