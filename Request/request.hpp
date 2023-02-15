@@ -16,6 +16,7 @@
 
 class Server;
 
+enum Method {GET, POST, DELETE, NONE};
 
 struct client_info {
 	socklen_t				address_len;
@@ -25,7 +26,22 @@ struct client_info {
 };
 
 
+struct Header {
+	std::string	name;
+	std::string value;
+};
+
+struct Request {
+	Method	method;
+	std::string	url;
+	std::string	version;
+	std::vector<Header>	headers;
+	std::string	body;
+};
+
+
 void	handle_requests(std::vector<Server>& servers);
+void	parse_request(const std::vector<client_info>& clients);
 
 
 #endif //WEBSERVER_REQUEST_HPP

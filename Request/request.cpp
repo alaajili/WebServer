@@ -77,10 +77,14 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 {
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (FD_ISSET(clients[i].sock, read_fds)) {
+			std::cout << "HERE" << std::endl;
 			int r;
 			char buff[1024];
+			int c = 0;
 			while ((r = recv(clients[i].sock, buff, 1024, 0)) > 0) {
+				std::cout << "c --> " << c << std::endl;
 				clients[i].request.insert(clients[i].request.size(), buff, r);
+				c++;
 			}
 		}
 	}
@@ -92,18 +96,12 @@ void	handle_requests(std::vector<Server>& servers)
 	std::vector<client_info>	clients;
 
 	sockets = init_sockets(servers);
-	int count = 0;
 	while (1337)
 	{
-		std::cout << "COUNT ===>> " << count << std::endl;
 		fd_set						read_fds;
 		wait_on_clients(sockets, clients, &read_fds);
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
-		std::cout << "NUM OF CLIENTS ===>> " << clients.size() << std::endl;
-		for (size_t i = 0; i < clients.size(); i++) {
-			std::cout << clients[i].request << std::endl;
-		}
-		count++;
+		parse_request(clients);
 	}
 }
