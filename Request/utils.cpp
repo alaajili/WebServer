@@ -47,6 +47,35 @@ std::string	get_version(std::string str, size_t path_len)
 	return version;
 }
 
+std::string	get_header_name(std::string str)
+{
+	std::string	name;
+	size_t		i;
+
+	i = 0;
+	while (str[i] != ':') {
+		name += str[i];
+		i++;
+	}
+	return name;
+}
+
+std::string	get_header_value(std::string str)
+{
+	std::string	value;
+	size_t		i;
+
+	i = 0;
+	while (str[i] != ':')
+			i++;
+	i+=2;
+	while (i < str.size()) {
+		value += str[i];
+		i++;
+	}
+	return value;
+}
+
 Request	get_headers(std::vector<std::string> req)
 {
 	Request request;
@@ -54,6 +83,12 @@ Request	get_headers(std::vector<std::string> req)
 	request.method = get_method(req[0]);
 	request.path = get_path(req[0]);
 	request.version = get_version(req[0], request.path.length());
-
+	for (size_t i = 1; i < req.size(); i++)
+	{
+		Header header;
+		header.name = get_header_name(req[i]);
+		header.value = get_header_value(req[i]);
+		request.headers.push_back(header);
+	}
 	return request;
 }
