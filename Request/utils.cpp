@@ -38,5 +38,6 @@ Request	get_headers(std::vector<std::string> req)
 
 	request.method = get_method(req[0]);
 	request.path = get_path(req[0]);
+
 	return request;
 }

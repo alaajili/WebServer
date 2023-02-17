@@ -83,6 +83,11 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 				clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
 			}
 		}
+		if (clients[i].request_str.empty())
+			clients[i].request.ready = false;
+		else
+			clients[i].request.ready = true;
+
 	}
 }
 

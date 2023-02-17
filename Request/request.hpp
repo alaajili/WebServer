@@ -29,6 +29,7 @@ struct Request {
 	std::string			version;
 	std::vector<Header>	headers;
 	std::string			body;
+	bool				ready;
 };
 
 struct client_info {
