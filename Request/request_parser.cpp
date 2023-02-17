@@ -19,14 +19,11 @@ std::vector<std::string>	split_request_str(std::string request_str)
 
 void	parse_requests(std::vector<client_info>& clients)
 {
-	std::cout << clients.size() << std::endl;
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i].request.ready) {
 			std::vector<std::string> req;
 			req = split_request_str(clients[i].request_str);
 			clients[i].request = get_headers(req);
-			std::cout << clients[i].request.method << std::endl;
-			std::cout << clients[i].request.path << std::endl;
 		}
 	}
 }

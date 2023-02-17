@@ -32,12 +32,28 @@ std::string	get_path(std::string str)
 	return path;
 }
 
+std::string	get_version(std::string str, size_t path_len)
+{
+	std::string	version;
+	size_t		i;
+
+	i = str.find('/');
+	i += (path_len + 1);
+	while (i  < str.size()) {
+		version += str[i];
+		i++;
+	}
+	std::cout << version << std::endl;
+	return version;
+}
+
 Request	get_headers(std::vector<std::string> req)
 {
 	Request request;
 
 	request.method = get_method(req[0]);
 	request.path = get_path(req[0]);
+	request.version = get_version(req[0], request.path.length());
 
 	return request;
 }
