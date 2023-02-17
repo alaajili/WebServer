@@ -25,7 +25,7 @@ struct Header {
 
 struct Request {
 	Method				method;
-	std::string			url;
+	std::string			path;
 	std::string			version;
 	std::vector<Header>	headers;
 	std::string			body;
@@ -40,11 +40,9 @@ struct client_info {
 };
 
 
-
-
-
 void	handle_requests(std::vector<Server>& servers);
 void	parse_requests(std::vector<client_info>& clients);
+Request	get_headers(std::vector<std::string> req);
 
 
 #endif //WEBSERVER_REQUEST_HPP

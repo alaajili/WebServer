@@ -15,7 +15,5 @@ int main(int ac, char **av)
     }
     servers = parse_conf_file(av[1]);
 	handle_requests(servers);
-
-
     return 0;
 }
