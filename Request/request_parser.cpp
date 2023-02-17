@@ -22,8 +22,8 @@ void	parse_requests(std::vector<client_info>& clients)
 	for (size_t i = 0; i < clients.size(); i++) {
 		std::vector<std::string> req;
 		req = split_request_str(clients[i].request_str);
-		for (size_t i = 0; i < req.size(); i++) {
-			std::cout << "{" << req[i] << "}" << std::endl;
-		}
+		clients[i].request = get_headers(req);
+//		std::cout << clients[i].request.method << std::endl;
+//		std::cout << clients[i].request.path << std::endl;
 	}
 }
