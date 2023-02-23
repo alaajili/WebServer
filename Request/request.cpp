@@ -43,7 +43,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
 						fd_set *read_fds)
 {
-	int max_socket;
+	int max_socket  = -1;
 
 	FD_ZERO(read_fds);
 	for (size_t i = 0; i < sockets.size(); i++) {
@@ -52,9 +52,10 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 			max_socket = sockets[i];
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
+		// std::cerr << "ERRRRRRRR" << std::endl;
 		FD_SET(clients[i].sock, read_fds);
-		if (sockets[i] > max_socket)
-			max_socket = sockets[i];
+		if (clients[i].sock > max_socket)
+			max_socket = clients[i].sock;
 	}
 	select(max_socket + 1, read_fds, 0, 0, 0);
 }
@@ -62,12 +63,14 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& clients,
 					fd_set *read_fds)
 {
+	std::cout << "NUMBER OF SOCKETS: " << sockets.size() << std::endl;
 	for (size_t i = 0; i < sockets.size(); i++) {
 		if (FD_ISSET(sockets[i], read_fds)) {
 			client_info	new_client;
 			new_client.address_len = sizeof new_client.address;
 			new_client.sock = accept(sockets[i], (struct sockaddr*)&new_client.address,
 					&new_client.address_len);
+			std::cout << "NEW CLIENT  " << new_client.sock << std::endl;
 			clients.push_back(new_client);
 		}
 	}

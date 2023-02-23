@@ -43,7 +43,6 @@ std::string	get_version(std::string str, size_t path_len)
 		version += str[i];
 		i++;
 	}
-	std::cout << version << std::endl;
 	return version;
 }
 
