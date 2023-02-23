@@ -14,10 +14,6 @@
   <component name="ChangeListManager">
     <list default="true" id="6426c7be-d10d-400c-b2fa-e33eaca1e578" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Request/request.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Request/request_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Request/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/utils.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/default.conf" beforeDir="false" afterPath="$PROJECT_DIR$/default.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,12 +46,13 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/alaajili/Desktop/WebServer&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.new.ui&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -158,6 +155,8 @@
       <workItem from="1677094342621" duration="1152000" />
       <workItem from="1677154997760" duration="3000" />
       <workItem from="1677164940155" duration="6000" />
+      <workItem from="1677167918001" duration="32000" />
+      <workItem from="1677167961298" duration="593000" />
     </task>
     <servers />
   </component>
