@@ -52,7 +52,6 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 			max_socket = sockets[i];
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
-		// std::cerr << "ERRRRRRRR" << std::endl;
 		FD_SET(clients[i].sock, read_fds);
 		if (clients[i].sock > max_socket)
 			max_socket = clients[i].sock;
@@ -63,14 +62,12 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& clients,
 					fd_set *read_fds)
 {
-	std::cout << "NUMBER OF SOCKETS: " << sockets.size() << std::endl;
 	for (size_t i = 0; i < sockets.size(); i++) {
 		if (FD_ISSET(sockets[i], read_fds)) {
 			client_info	new_client;
 			new_client.address_len = sizeof new_client.address;
 			new_client.sock = accept(sockets[i], (struct sockaddr*)&new_client.address,
 					&new_client.address_len);
-			std::cout << "NEW CLIENT  " << new_client.sock << std::endl;
 			clients.push_back(new_client);
 		}
 	}
@@ -81,10 +78,11 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (FD_ISSET(clients[i].sock, read_fds)) {
 			int r;
-			char buff[1024];
-			while ((r = recv(clients[i].sock, buff, 1024, 0)) > 0) {
-				clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
-			}
+			char buff[1025];
+			r = recv(clients[i].sock, buff, 1024, 0);
+            buff[r] = 0;
+            clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
+            if (r == 0) { std::cerr << "close connection!!" << std::endl; }
 		}
 		if (clients[i].request_str.empty())
 			clients[i].request.ready = false;
@@ -106,7 +104,14 @@ void	handle_requests(std::vector<Server>& servers)
 		wait_on_clients(sockets, clients, &read_fds);
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
-		parse_requests(clients);
+        std::cerr << clients.size() << std::endl;
+        for (size_t i = 0; i < clients.size(); i++){
+            if (clients[i].request.ready) {
+                std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
+                send(clients[i].sock, data.c_str(), data.size(), 0);
+            }
+        }
+		// parse_requests(clients);
 	}
 }
 
