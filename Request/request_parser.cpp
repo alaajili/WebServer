@@ -24,6 +24,7 @@ void	parse_requests(std::vector<client_info>& clients)
 			std::vector<std::string> req;
 			req = split_request_str(clients[i].request_str);
 			clients[i].request = get_headers(req);
+            send(clients[i].sock, "Hello", 5, 0);
 		}
 	}
 }

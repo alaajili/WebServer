@@ -43,7 +43,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
 						fd_set *read_fds)
 {
-	int max_socket;
+	int max_socket  = -1;
 
 	FD_ZERO(read_fds);
 	for (size_t i = 0; i < sockets.size(); i++) {
@@ -53,8 +53,8 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
 		FD_SET(clients[i].sock, read_fds);
-		if (sockets[i] > max_socket)
-			max_socket = sockets[i];
+		if (clients[i].sock > max_socket)
+			max_socket = clients[i].sock;
 	}
 	select(max_socket + 1, read_fds, 0, 0, 0);
 }
@@ -78,10 +78,11 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (FD_ISSET(clients[i].sock, read_fds)) {
 			int r;
-			char buff[1024];
-			while ((r = recv(clients[i].sock, buff, 1024, 0)) > 0) {
-				clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
-			}
+			char buff[1025];
+			r = recv(clients[i].sock, buff, 1024, 0);
+            buff[r] = 0;
+            clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
+            if (r == 0) { std::cerr << "close connection!!" << std::endl; }
 		}
 		if (clients[i].request_str.empty())
 			clients[i].request.ready = false;
@@ -105,6 +106,14 @@ void	handle_requests(std::vector<Server>& servers)
 		get_requests(clients, &read_fds);
 		parse_requests(clients);
         handlmethod(clients); //// my code here ////
+        std::cerr << clients.size() << std::endl;
+//        for (size_t i = 0; i < clients.size(); i++){
+//            if (clients[i].request.ready) {
+//                std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
+//                send(clients[i].sock, data.c_str(), data.size(), 0);
+//            }
+//        }
+		// parse_requests(clients);
 	}
 }
 
