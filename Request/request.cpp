@@ -104,6 +104,7 @@ void	handle_requests(std::vector<Server>& servers)
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
 		parse_requests(clients);
+        handlmethod(clients); //// my code here ////
 	}
 }
 
