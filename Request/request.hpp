@@ -6,13 +6,17 @@
 #define WEBSERVER_REQUEST_HPP
 
 #include "../ParsingConfig/parser.hpp"
-
+#include <cstring> /// for linux
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+//#include <iostream>
+#include <fstream>
+#include <sstream>
+
 
 class Server;
 
@@ -45,5 +49,7 @@ void	handle_requests(std::vector<Server>& servers);
 void	parse_requests(std::vector<client_info>& clients);
 Request	get_headers(std::vector<std::string> req);
 
+/*--------------*/
+void handlmethod(std::vector<client_info>& clients);
 
 #endif //WEBSERVER_REQUEST_HPP
