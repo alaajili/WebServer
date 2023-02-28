@@ -102,10 +102,10 @@ std::string getmethod(client_info &client,std::string &path)
 	    resp.Content_type += get_Content_type(path);
 	    resp.Content_len += long_to_string(filedata.len_file);
         response = resp.status_code;
+        response += "Server: klinix\r\n";
         response += resp.Content_len + "\r\n";
         response += resp.Content_type + "\r\n" + "Connection: close\r\n\r\n";
         response += filedata.data;
-        /*--------------------*/
     }
     return response;
 }
