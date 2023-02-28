@@ -16,6 +16,8 @@
 //#include <iostream>
 #include <fstream>
 #include <sstream>
+#include <stdlib.h>
+#include <cstdlib>
 
 
 class Server;
@@ -50,6 +52,7 @@ void	parse_requests(std::vector<client_info>& clients);
 Request	get_headers(std::vector<std::string> req);
 
 /*--------------*/
-void handlmethod(std::vector<client_info>& clients);
+std::string handlmethod(std::vector<client_info>& clients);
+/*-------------*/
 
 #endif //WEBSERVER_REQUEST_HPP

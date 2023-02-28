@@ -10,7 +10,7 @@
 
 struct fileData {
 	std::string	data;
-	long len_file;
+	int len_file;
 };
 
 

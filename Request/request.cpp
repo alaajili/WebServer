@@ -106,13 +106,13 @@ void	handle_requests(std::vector<Server>& servers)
 		get_requests(clients, &read_fds);
 		parse_requests(clients);
         handlmethod(clients); //// my code here ////
-        std::cerr << clients.size() << std::endl;
-//        for (size_t i = 0; i < clients.size(); i++){
-//            if (clients[i].request.ready) {
-//                std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
-//                send(clients[i].sock, data.c_str(), data.size(), 0);
-//            }
-//        }
+    //     std::cerr << clients.size() << std::endl;
+    //    for (size_t i = 0; i < clients.size(); i++){
+    //        if (clients[i].request.ready) {
+    //            std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
+    //            send(clients[i].sock, data.c_str(), data.size(), 0);
+    //        }
+    //    }
 		// parse_requests(clients);
 	}
 }

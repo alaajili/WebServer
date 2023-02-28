@@ -4,6 +4,18 @@
 
 #include "GetReq.h"
 
+std::string error404()
+{
+    return "HTTP/1.1 404 Not Found\r\n"
+            "Server: klinix\r\n";
+}
+
+std::string long_to_string(long num) {
+    std::ostringstream oss;
+    oss << num;
+    return oss.str();
+}
+
 std::map<std::string, std::string> init_map() {
     std::map<std::string, std::string> m;
 
@@ -47,6 +59,8 @@ fileData	read_fromFile(std::string file_path)
 	fileData file_data;
 
     std::ifstream myfile (file_path.c_str());
+    file_data.len_file = 0;
+    file_data.data = "";
     if (myfile.is_open())
     {
         while ( getline (myfile,line) )
@@ -55,8 +69,13 @@ fileData	read_fromFile(std::string file_path)
             file_data.data += line;
         }
         myfile.close();
+        return file_data;
     }
-	return file_data;
+    else
+    {
+        file_data.len_file = -1;
+	    return file_data;
+    }
 }
 
 
@@ -66,16 +85,37 @@ void	fill_response(response &_response)
 	_response.Content_len = "Content-Length: ";
 }
 
-
-
-void handlmethod(std::vector<client_info>& clients)
+std::string getmethod(client_info &client,std::string &path)
 {
-	response resp;
-
+    response resp;
+    std::string response;
 
 	fill_response(resp);
 
-	std::string path = "/home/anasselb/WebServer/fit-master"; // location ?
+    path += client.request.path;
+	fileData filedata = read_fromFile(path);
+    if (filedata.len_file == -1)
+        return error404();
+    else
+    {
+        resp.status_code = "HTTP/1.1 200 OK\r\n"; // hardcoded http version
+	    resp.Content_type += get_Content_type(path);
+	    resp.Content_len += long_to_string(filedata.len_file);
+        response = resp.status_code;
+        response += resp.Content_len + "\r\n";
+        response += resp.Content_type + "\r\n";
+
+        /*--------------------*/
+        
+    }
+    return response;
+}
+
+std::string handlmethod(std::vector<client_info>& clients)
+{
+    std::string response;
+	
+	std::string location = "/home/anasselb/WebServer/fit-master"; // location ? hardcoded 
 
     for (size_t i = 0; i < clients.size(); i++) {
         if (clients[i].request.ready)
@@ -84,16 +124,11 @@ void handlmethod(std::vector<client_info>& clients)
 			if (clients[i].request.method == 0)
 			{
 				/*----------GET------------*/
-				// std::cout << "path : " << clients[i].request.path << std::endl;
-				path += clients[i].request.path;
-				fileData filedata = read_fromFile(path);
-				std::cout << "path : " << path << std::endl;
-				resp.Content_type += get_Content_type(path);
-				resp.Content_len += itoa(filedata.len_file);
-				std::cout << "Content_type : " << resp.Content_type << std::endl;
-				/*------------------------*/
+                response = getmethod(clients[i],location);
+                std::cout << response ; // for test 
 			}
         }
     }
+    return "";
 }
 
