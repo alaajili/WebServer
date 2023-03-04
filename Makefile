@@ -6,7 +6,7 @@ SRCS = webserv.cpp ParsingConfig/holder.cpp ParsingConfig/parser.cpp ParsingConf
 ParsingConfig/server_location.cpp Request/request.cpp Request/request_parser.cpp Request/utils.cpp
 OBJS = $(SRCS:.cpp=.o)
 CC = c++
-CPPFLAGS = -Wall -Werror -Wextra -std=c++98
+CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
 all: $(NAME)
 
 $(NAME): $(OBJS)

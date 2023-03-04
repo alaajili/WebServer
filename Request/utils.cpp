@@ -84,10 +84,10 @@ Request	get_headers(std::vector<std::string> req)
 	request.version = get_version(req[0], request.path.length());
 	for (size_t i = 1; i < req.size(); i++)
 	{
-		Header header;
-		header.name = get_header_name(req[i]);
-		header.value = get_header_value(req[i]);
-		request.headers.push_back(header);
+        Header header;
+        header.name = get_header_name(req[i]);
+        header.value = get_header_value(req[i]);
+        request.headers.push_back(header);
 	}
 	return request;
 }
