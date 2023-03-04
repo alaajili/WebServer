@@ -18,10 +18,14 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
                 std::cerr << "socket() failed!!" << std::endl;
                 exit(1);
             }
+
+            fcntl(servers[i].sock_fd, F_SETFL, O_NONBLOCK);
+
             address.sin_family = AF_INET;
             address.sin_addr.s_addr = INADDR_ANY;
             address.sin_port = htons(servers[i].port);
             memset(address.sin_zero, 0, sizeof address.sin_zero);
+
             if (bind(servers[i].sock_fd, (struct sockaddr *) &address, sizeof address)) {
                 std::cerr << "bind() failed!!" << std::endl;
                 exit(1);
@@ -41,7 +45,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 }
 
 void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
-						fd_set *read_fds)
+						fd_set *read_fds, fd_set *write_fds)
 {
 	int max_socket  = -1;
 
@@ -56,7 +60,10 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 		if (clients[i].sock > max_socket)
 			max_socket = clients[i].sock;
 	}
-	select(max_socket + 1, read_fds, 0, 0, 0);
+	if (select(max_socket + 1, read_fds, write_fds, 0, 0) < 0) {
+        std::cerr << "error in select()" << std::endl;
+        exit(1);
+    }
 }
 
 void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& clients,
@@ -76,19 +83,25 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
 {
 	for (size_t i = 0; i < clients.size(); i++) {
+        clients[i].request.ready = false;
 		if (FD_ISSET(clients[i].sock, read_fds)) {
 			int r;
-			char buff[1025];
+			char buff[1024];
 			r = recv(clients[i].sock, buff, 1024, 0);
-            buff[r] = 0;
-            clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
-            if (r == 0) { std::cerr << "close connection!!" << std::endl; }
+            if (r < 0) {
+                std::cerr << "error in recv()" << std::endl;
+                exit(1);
+            }
+            else if (r == 0) {
+                std::cout << "client disconnected!!" << std::endl;
+                close(clients[i].sock);
+                clients.erase(clients.begin()+i);
+            }
+            else {
+                clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
+                clients[i].request.ready = true;
+            }
 		}
-		if (clients[i].request_str.empty())
-			clients[i].request.ready = false;
-		else
-			clients[i].request.ready = true;
-
 	}
 }
 
@@ -100,18 +113,20 @@ void	handle_requests(std::vector<Server>& servers)
 	sockets = init_sockets(servers);
 	while (1337)
 	{
-		fd_set						read_fds;
-		wait_on_clients(sockets, clients, &read_fds);
+		fd_set  read_fds;
+        fd_set  write_fds;
+		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
-        std::cerr << clients.size() << std::endl;
-        for (size_t i = 0; i < clients.size(); i++){
+        parse_requests(clients);
+        for (size_t i = 0; i < clients.size(); i++) {
             if (clients[i].request.ready) {
+//                std::cerr << clients[i].request.method << " " << clients[i].request.path << " " << clients[i].request.version << std::endl;
                 std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
                 send(clients[i].sock, data.c_str(), data.size(), 0);
             }
         }
-		// parse_requests(clients);
+
 	}
 }
 

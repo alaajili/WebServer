@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "ParsingConfig/parser.hpp"
 #include "Request/request.hpp"

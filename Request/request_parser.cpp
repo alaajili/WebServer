@@ -12,6 +12,8 @@ std::vector<std::string>	split_request_str(std::string request_str)
 		req.push_back(request_str.substr(0, end));
 		request_str.erase(request_str.begin(), request_str.begin() + end + 2);
 		end = request_str.find("\r\n");
+        if (request_str[end+2] == '\r' && request_str[end+3] == '\n')
+            break;
 	}
 	req.push_back(request_str.substr(0, end));
 	return req;
@@ -24,7 +26,6 @@ void	parse_requests(std::vector<client_info>& clients)
 			std::vector<std::string> req;
 			req = split_request_str(clients[i].request_str);
 			clients[i].request = get_headers(req);
-            send(clients[i].sock, "Hello", 5, 0);
 		}
 	}
 }
