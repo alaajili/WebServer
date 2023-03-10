@@ -13,13 +13,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6426c7be-d10d-400c-b2fa-e33eaca1e578" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Response/GetReq.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Response/GetReq.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/css/style.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-banner.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-circle-one.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-circle-two.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-coach.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/calories.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-4.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/classes-bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/fitness.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/footer-bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/footer-clock.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/heart-rate.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-banner.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-bg.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-circle-one.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-circle-two.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/video-banner.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/assets/js/script.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/favicon.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/index.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/readme-images/desktop.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fit-master/style-guide.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webserv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request_parser.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Request/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/utils.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webserv.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/webserv.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +63,13 @@
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -46,6 +88,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
@@ -182,7 +225,22 @@
       <workItem from="1677782831119" duration="2000" />
       <workItem from="1677858224029" duration="6213000" />
       <workItem from="1677868990521" duration="248000" />
-      <workItem from="1677943699945" duration="3402000" />
+      <workItem from="1677943699945" duration="4202000" />
+      <workItem from="1677955796106" duration="1216000" />
+      <workItem from="1677970786329" duration="2000" />
+      <workItem from="1678024862301" duration="1000" />
+      <workItem from="1678036382901" duration="265000" />
+      <workItem from="1678041563639" duration="2000" />
+      <workItem from="1678046789156" duration="2648000" />
+      <workItem from="1678104755321" duration="2000" />
+      <workItem from="1678125631836" duration="4676000" />
+      <workItem from="1678315988529" duration="2000" />
+      <workItem from="1678364376317" duration="2000" />
+      <workItem from="1678366950421" duration="3759000" />
+      <workItem from="1678377378278" duration="2582000" />
+      <workItem from="1678388523647" duration="1000" />
+      <workItem from="1678391139948" duration="6171000" />
+      <workItem from="1678405289331" duration="3000" />
     </task>
     <servers />
   </component>
