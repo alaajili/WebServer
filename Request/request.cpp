@@ -45,7 +45,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 }
 
 void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
-						fd_set *read_fds, fd_set *write_fds)
+						fd_set *read_fds)
 {
 	int max_socket  = -1;
 
@@ -60,7 +60,7 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 		if (clients[i].sock > max_socket)
 			max_socket = clients[i].sock;
 	}
-	if (select(max_socket + 1, read_fds, write_fds, 0, 0) < 0) {
+	if (select(max_socket + 1, read_fds, 0, 0, 0) < 0) {
         std::cerr << "error in select()" << std::endl;
         exit(1);
     }
@@ -114,19 +114,13 @@ void	handle_requests(std::vector<Server>& servers)
 	while (1337)
 	{
 		fd_set  read_fds;
-        fd_set  write_fds;
-		wait_on_clients(sockets, clients, &read_fds, &write_fds);
+        //fd_set  write_fds;
+		wait_on_clients(sockets, clients, &read_fds);
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds);
         parse_requests(clients);
-        for (size_t i = 0; i < clients.size(); i++) {
-            if (clients[i].request.ready) {
-//                std::cerr << clients[i].request.method << " " << clients[i].request.path << " " << clients[i].request.version << std::endl;
-                std::string data = "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 21\n\n<h1>Hello World!</h1>";
-                send(clients[i].sock, data.c_str(), data.size(), 0);
-            }
-        }
-
+        handlmethod(clients);
+        std::cerr << "number of clients: " << clients.size() << std::endl;
 	}
 }
 
