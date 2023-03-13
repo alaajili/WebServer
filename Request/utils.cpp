@@ -75,10 +75,8 @@ std::string	get_header_value(std::string str)
 	return value;
 }
 
-Request	get_headers(std::vector<std::string> req)
+void    get_headers(std::vector<std::string> req, Request& request)
 {
-	Request request;
-
 	request.method = get_method(req[0]);
 	request.path = get_path(req[0]);
 	request.version = get_version(req[0], request.path.length());
@@ -89,5 +87,4 @@ Request	get_headers(std::vector<std::string> req)
         header.value = get_header_value(req[i]);
         request.headers.push_back(header);
 	}
-	return request;
 }

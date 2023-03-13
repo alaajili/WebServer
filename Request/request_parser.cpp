@@ -23,13 +23,12 @@ void	parse_requests(std::vector<client_info>& clients)
 {
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (clients[i].request.ready) {
+            std::cerr << "READY TO PARSE" << std::endl;
 			std::vector<std::string> req;
 			req = split_request_str(clients[i].request_str);
-			clients[i].request = get_headers(req);
-            std::cerr << clients[i].request.method << " ";
-            std::cerr << clients[i].request.path << " ";
-            std::cerr << clients[i].request.version << std::endl;
+			get_headers(req, clients[i].request);
             std::cerr << clients[i].request_str << std::endl;
+            clients[i].request_str.clear();
 		}
 	}
 }

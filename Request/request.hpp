@@ -22,6 +22,7 @@
 #include <cstdlib>
 
 
+
 class Server;
 
 enum Method {GET, POST, DELETE, NONE};
@@ -51,7 +52,7 @@ struct client_info {
 
 void	handle_requests(std::vector<Server>& servers);
 void	parse_requests(std::vector<client_info>& clients);
-Request	get_headers(std::vector<std::string> req);
+void	get_headers(std::vector<std::string> req, Request& request);
 
 /*--------------*/
 std::string handlmethod(std::vector<client_info>& clients);
