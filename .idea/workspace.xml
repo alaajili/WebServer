@@ -13,48 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6426c7be-d10d-400c-b2fa-e33eaca1e578" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Response/GetReq.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Response/GetReq.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/css/style.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-banner.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-circle-one.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-circle-two.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/about-coach.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/blog-3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/calories.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-4.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/class-icon-4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/classes-bg.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/fitness.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/footer-bg.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/footer-clock.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/heart-rate.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-banner.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-bg.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-circle-one.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/hero-circle-two.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/images/video-banner.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/assets/js/script.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/favicon.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/index.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/readme-images/desktop.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/fit-master/style-guide.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webserv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Request/request_parser.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/request_parser.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Request/utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Request/utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Response/GetReq.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Response/GetReq.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/default.conf" beforeDir="false" afterPath="$PROJECT_DIR$/default.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fit-master/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/fit-master/test.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,7 +206,22 @@
       <workItem from="1678377378278" duration="2582000" />
       <workItem from="1678388523647" duration="1000" />
       <workItem from="1678391139948" duration="6171000" />
-      <workItem from="1678405289331" duration="3000" />
+      <workItem from="1678405289331" duration="254000" />
+      <workItem from="1678411146231" duration="3000" />
+      <workItem from="1678452943599" duration="2685000" />
+      <workItem from="1678465029257" duration="5337000" />
+      <workItem from="1678473854302" duration="4000" />
+      <workItem from="1678480976705" duration="2000" />
+      <workItem from="1678541689059" duration="953000" />
+      <workItem from="1678550366931" duration="5280000" />
+      <workItem from="1678621858348" duration="679000" />
+      <workItem from="1678630165625" duration="2000" />
+      <workItem from="1678637155243" duration="5946000" />
+      <workItem from="1678647325447" duration="3019000" />
+      <workItem from="1678654555131" duration="808000" />
+      <workItem from="1678664425584" duration="145000" />
+      <workItem from="1678712444953" duration="2000" />
+      <workItem from="1678727233080" duration="5911000" />
     </task>
     <servers />
   </component>

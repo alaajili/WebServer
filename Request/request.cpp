@@ -45,7 +45,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 }
 
 void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
-						fd_set *read_fds)
+						fd_set *read_fds, fd_set *write_fds)
 {
 	int max_socket  = -1;
 
@@ -56,11 +56,12 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 			max_socket = sockets[i];
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
-		FD_SET(clients[i].sock, read_fds);
+        FD_SET(clients[i].sock, read_fds);
+		// FD_SET(clients[i].sock, write_fds);
 		if (clients[i].sock > max_socket)
 			max_socket = clients[i].sock;
 	}
-	if (select(max_socket + 1, read_fds, 0, 0, 0) < 0) {
+	if (select(max_socket + 1, read_fds, write_fds, 0, 0) < 0) {
         std::cerr << "error in select()" << std::endl;
         exit(1);
     }
@@ -71,7 +72,7 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 {
 	for (size_t i = 0; i < sockets.size(); i++) {
 		if (FD_ISSET(sockets[i], read_fds)) {
-			client_info	new_client;
+			client_info new_client;
 			new_client.address_len = sizeof new_client.address;
 			new_client.sock = accept(sockets[i], (struct sockaddr*)&new_client.address,
 					&new_client.address_len);
@@ -80,7 +81,7 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 	}
 }
 
-void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
+void	get_requests(std::vector<client_info>& clients, fd_set *read_fds, fd_set *write_fds)
 {
 	for (size_t i = 0; i < clients.size(); i++) {
         clients[i].request.ready = false;
@@ -93,15 +94,19 @@ void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
                 exit(1);
             }
             else if (r == 0) {
-                std::cout << "client disconnected!!" << std::endl;
+                std::cout << "client disconnected!!!" << std::endl;
                 close(clients[i].sock);
                 clients.erase(clients.begin()+i);
+                continue;
             }
             else {
                 clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
                 clients[i].request.ready = true;
+                FD_SET(clients[i].sock, write_fds);
             }
 		}
+        if (FD_ISSET(clients[i].sock, write_fds))
+            std::cerr << "WRITABLE" << std::endl;
 	}
 }
 
@@ -114,13 +119,17 @@ void	handle_requests(std::vector<Server>& servers)
 	while (1337)
 	{
 		fd_set  read_fds;
-        //fd_set  write_fds;
-		wait_on_clients(sockets, clients, &read_fds);
+        fd_set  write_fds;
+		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
-		get_requests(clients, &read_fds);
+		get_requests(clients, &read_fds, &write_fds);
         parse_requests(clients);
-        handlmethod(clients);
         std::cerr << "number of clients: " << clients.size() << std::endl;
+        handlmethod(clients);
+        for (size_t i = 0; i < clients.size(); i++) {
+            FD_CLR(clients[i].sock, &write_fds);
+        }
+
 	}
 }
 

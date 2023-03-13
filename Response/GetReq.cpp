@@ -62,21 +62,23 @@ fileData	read_fromFile(std::string file_path)
 
     file_data.len_file = 0;
     file_data.data = "";
-    if (myfile.is_open())
+    while (myfile.good())
     {
-        while ( getline (myfile,line) )
-        {
-            file_data.len_file += line.length();
-            file_data.data += line;
-        }
-        myfile.close();
-        return file_data;
+        char buff[1024];
+
+        myfile.read(buff, 1024);
+        //buff[myfile.gcount()] = 0;
+        file_data.len_file += myfile.gcount();
+        file_data.data.append(buff,myfile.gcount());
+
     }
-    else
-    {
-        file_data.len_file = -1;
-	    return file_data;
-    }
+    myfile.close();
+    return file_data;
+//    else
+//    {
+//        file_data.len_file = -1;
+//	    return file_data;
+//    }
 }
 
 
@@ -86,7 +88,7 @@ void	fill_response(response &_response)
 	_response.Content_len = "Content-Length: ";
 }
 
-std::string getmethod(client_info &client,std::string &path)
+std::string getmethod(client_info &client,std::string &path, size_t& len)
 {
     response resp;
     std::string response;
@@ -96,7 +98,7 @@ std::string getmethod(client_info &client,std::string &path)
     path += client.request.path;
     std::cerr << "path: "<< path << std::endl;
 	fileData filedata = read_fromFile(path);
-    std::cerr << filedata.data << std::endl;
+    len = filedata.len_file;
     if (filedata.len_file == -1)
         return error404();
     else
@@ -108,7 +110,8 @@ std::string getmethod(client_info &client,std::string &path)
         response += "Server: klinix\r\n";
         response += resp.Content_len + "\r\n";
         response += resp.Content_type + "\r\n" + "Connection: Keep-Alive\r\n\r\n";
-        response += filedata.data;
+        len += response.length();
+        response.append(filedata.data);
     }
     return response;
 }
@@ -116,21 +119,23 @@ std::string getmethod(client_info &client,std::string &path)
 std::string handlmethod(std::vector<client_info>& clients)
 {
     std::string response;
-	
-	std::string location = "/Users/alaajili/Desktop/WebServer/fit-master"; // location ? hardcoded
+	std::string location = "/Users/alaajili/Desktop/WebServer/fit-master"; // location ? hardcode
+    int good = 0;
     for (size_t i = 0; i < clients.size(); i++) {
         if (clients[i].request.ready)
         {
-			std::cout << "method : " << clients[i].request.method << std::endl;
+            std::cerr << "READY" << std::endl;
 			if (clients[i].request.method == 0)
 			{
 				/*----------GET------------*/
-                response = getmethod(clients[i],location);
-                // std::cout << response ; // for test
-                send(clients[i].sock, response.c_str(), response.length(), 0);
-
+                size_t  len;
+                response = getmethod(clients[i],location, len);
+                std::cerr << "sending response..." << std::endl;
+                good = send(clients[i].sock, response.c_str(), len, 0);
+                std::cout << good << "    " << len << std::endl;
 			}
         }
+
     }
     return "";
 }
