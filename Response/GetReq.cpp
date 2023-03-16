@@ -32,6 +32,7 @@ std::map<std::string, std::string> init_map() {
     m[".ico"] = "image/x-icon";
     m[".txt"] = "text/plain";
     m[".pdf"] = "application/pdf";
+    m[".mp4"] = "video/mp4";
 
     return m;
 }
@@ -95,6 +96,7 @@ std::string getmethod(client_info &client,std::string &path, size_t& len)
 
 	fill_response(resp);
 
+
     path += client.request.path;
     std::cerr << "path: "<< path << std::endl;
 	fileData filedata = read_fromFile(path);
@@ -116,55 +118,11 @@ std::string getmethod(client_info &client,std::string &path, size_t& len)
     return response;
 }
 
-std::string delete_method(const std::string& request, const std::string& document_root) {
-    // Extract the HTTP method and URI from the request
-    std::istringstream iss(request);
-    std::string http_method, uri, http_version;
-    iss >> http_method >> uri >> http_version;
-
-    // Remove leading slashes from the URI
-    uri.erase(std::remove(uri.begin(), uri.end(), '/'), uri.end());
-
-    // Serve index.html for root directory
-    if (uri.empty()) {
-        uri = "index.html";
-    }
-
-    // Construct the file path by appending the URI to the document root
-    std::string file_path = document_root + uri;
-
-    // Check if the file exists
-    std::ifstream file(file_path.c_str(), std::ios::binary);
-    if (!file.good()) {
-        // If the file does not exist, return a 404 response
-        return "HTTP/1.1 404 Not Found\r\n"
-               "Server: klinix\r\n";
-    }
-
-    // Close the file
-    file.close();
-
-    // Delete the file
-    if (remove(file_path.c_str()) != 0) {
-        // If the file cannot be deleted, return a 500 response
-        return "HTTP/1.1 500 Internal Server Error\r\n"
-               "Server: klinix\r\n";
-    }
-
-    // Construct the response
-    std::ostringstream oss;
-    oss << "HTTP/1.1 204 No Content\r\n"
-           "Server: klinix\r\n"
-           "Connection: close\r\n\r\n";
-
-    return oss.str();
-}
-
 std::string handlmethod(std::vector<client_info>& clients)
 {
     std::string response;
-	std::string location = "/Users/alaajili/Desktop/WebServer/fit-master"; // location ? hardcode
-    int good = 0;
+	std::string location = "/home/anasselb/WebServer/fit-master"; // location ? hardcode
+    // int good = 0;
     for (size_t i = 0; i < clients.size(); i++) {
         if (clients[i].request.ready)
         {
@@ -173,10 +131,11 @@ std::string handlmethod(std::vector<client_info>& clients)
 			{
 				/*----------GET------------*/
                 size_t  len;
-                response = getmethod(clients[i],location, len);
+                clients[i].request.response = getmethod(clients[i],location, len);
+                clients[i].request.offset = 0; /// <----------
                 std::cerr << "sending response..." << std::endl;
-                good = send(clients[i].sock, response.c_str(), len, 0);
-                std::cout << good << "    " << len << std::endl;
+                // good = send(clients[i].sock, clients[i].request.response.c_str(), len, 0);
+                // std::cout << good << "    " << len << std::endl;
 			}
             if (clients[i].request.method == 2)
             {
@@ -185,6 +144,6 @@ std::string handlmethod(std::vector<client_info>& clients)
         }
 
     }
-    return "";
+    return response;
 }
 

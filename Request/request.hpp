@@ -39,6 +39,10 @@ struct Request {
 	std::vector<Header>	headers;
 	std::string			body;
 	bool				ready;
+	std::string			response;
+	size_t				rep_len;
+	bool				done;
+	std::string::size_type offset;
 };
 
 struct client_info {

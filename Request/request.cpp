@@ -83,6 +83,7 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 
 void	get_requests(std::vector<client_info>& clients, fd_set *read_fds, fd_set *write_fds)
 {
+    
 	for (size_t i = 0; i < clients.size(); i++) {
         clients[i].request.ready = false;
 		if (FD_ISSET(clients[i].sock, read_fds)) {
@@ -114,6 +115,8 @@ void	handle_requests(std::vector<Server>& servers)
 {
 	std::vector<int>			sockets;
 	std::vector<client_info>	clients;
+    std::string                 response;
+    size_t                   chunk_size = 1024;
 
 	sockets = init_sockets(servers);
 	while (1337)
@@ -127,7 +130,23 @@ void	handle_requests(std::vector<Server>& servers)
         std::cerr << "number of clients: " << clients.size() << std::endl;
         handlmethod(clients);
         for (size_t i = 0; i < clients.size(); i++) {
-            FD_CLR(clients[i].sock, &write_fds);
+            if (!clients[i].request.response.empty()) {
+                std::string::size_type offset = clients[i].request.offset;
+                size_t remaining = clients[i].request.response.length() - offset;
+                size_t chunk = std::min(chunk_size, remaining);
+                ssize_t good = send(clients[i].sock, clients[i].request.response.c_str() + offset, chunk,0);
+                if (good == -1) {
+                    std::cerr << "Error sending data to client" << std::endl;
+                    continue;
+                }
+                clients[i].request.offset += good;
+                // if (clients[i].request.offset >= clients[i].request.response.length()) {
+                //     clients[i].request.done = true;
+                // }
+            }
+            if (clients[i].request.done) {
+                FD_CLR(clients[i].sock, &write_fds);
+            }
         }
 
 	}
