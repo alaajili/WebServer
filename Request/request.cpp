@@ -127,6 +127,7 @@ void	handle_requests(std::vector<Server>& servers)
 		accept_clients(sockets, clients, &read_fds);
 		get_requests(clients, &read_fds, &write_fds);
         parse_requests(clients);
+        server_block_selection(clients, servers);
         std::cerr << "number of clients: " << clients.size() << std::endl;
         handlmethod(clients);
         for (size_t i = 0; i < clients.size(); i++) {
@@ -140,9 +141,9 @@ void	handle_requests(std::vector<Server>& servers)
                     continue;
                 }
                 clients[i].request.offset += good;
-                // if (clients[i].request.offset >= clients[i].request.response.length()) {
-                //     clients[i].request.done = true;
-                // }
+                 if (clients[i].request.offset >= clients[i].request.rep_len) {
+                     clients[i].request.done = true;
+                 }
             }
             if (clients[i].request.done) {
                 FD_CLR(clients[i].sock, &write_fds);

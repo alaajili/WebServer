@@ -42,7 +42,11 @@ struct Request {
 	std::string			response;
 	size_t				rep_len;
 	bool				done;
-	std::string::size_type offset;
+	std::string::size_type  offset;
+
+    // server block and location
+    Server      serv_block;
+    Location    location;
 };
 
 struct client_info {
@@ -57,6 +61,7 @@ struct client_info {
 void	handle_requests(std::vector<Server>& servers);
 void	parse_requests(std::vector<client_info>& clients);
 void	get_headers(std::vector<std::string> req, Request& request);
+void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers);
 
 /*--------------*/
 std::string handlmethod(std::vector<client_info>& clients);

@@ -121,7 +121,7 @@ std::string getmethod(client_info &client,std::string &path, size_t& len)
 std::string handlmethod(std::vector<client_info>& clients)
 {
     std::string response;
-	std::string location = "/home/anasselb/WebServer/fit-master"; // location ? hardcode
+	std::string location = "/Users/alaajili/Desktop/WebServ/fit-master"; // location ? hardcode
     // int good = 0;
     for (size_t i = 0; i < clients.size(); i++) {
         if (clients[i].request.ready)
