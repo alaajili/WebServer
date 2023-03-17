@@ -98,9 +98,23 @@ void    match_server_block(Request& request, std::vector<Server> servers) {
     std::cerr << "BINGO: " << request.serv_block.location.size() << std::endl;
 }
 
+void    match_location(Request& request) {
+    std::map<std::string, Location> locations = request.serv_block.location;
+
+    std::map<std::string, Location>::iterator it;
+    for (it = locations.begin(); it != locations.end(); it++) {
+        if (it->first == request.path) {
+            request.location = it->second;
+            break;
+        }
+    }
+    std::cerr << request.location.root << std::endl;
+}
+
 void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers) {
     for (size_t i = 0; i < clients.size(); i++) {
         if (clients[i].request.ready)
             match_server_block(clients[i].request, servers);
+            match_location(clients[i].request);
     }
 }
