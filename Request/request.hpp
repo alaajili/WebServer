@@ -33,15 +33,15 @@ struct Header {
 };
 
 struct Request {
-	Method				method;
-	std::string			path;
-	std::string			version;
-	std::vector<Header>	headers;
-	std::string			body;
-	bool				ready;
-	std::string			response;
-	size_t				rep_len;
-	bool				done;
+	Method				    method;
+	std::string			    path;
+	std::string			    version;
+	std::vector<Header>	    headers;
+	std::string			    body;
+	bool				    ready;
+	std::string			    response;
+	size_t				    rep_len;
+	bool				    done;
 	std::string::size_type  offset;
 
     // server block and location
@@ -50,11 +50,11 @@ struct Request {
 };
 
 struct client_info {
-	socklen_t				address_len;
-	struct sockaddr_storage	address;
-	int						sock;
-	std::string				request_str;
-	Request					request;
+	socklen_t				    address_len;
+	struct sockaddr_storage	    address;
+	int						    sock;
+	std::vector<std::string>    requests_str;
+	std::vector<Request>        requests;
 };
 
 
@@ -64,7 +64,7 @@ void	get_headers(std::vector<std::string> req, Request& request);
 void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers);
 
 /*--------------*/
-std::string handlmethod(std::vector<client_info>& clients);
+std::string handle_method(std::vector<client_info>& clients);
 /*-------------*/
 
 #endif //WEBSERVER_REQUEST_HPP

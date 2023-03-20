@@ -89,7 +89,7 @@ void	fill_response(response &_response)
 	_response.Content_len = "Content-Length: ";
 }
 
-std::string getmethod(client_info &client,std::string &path, size_t& len)
+std::string get_method(Request &request,std::string path)
 {
     response resp;
     std::string response;
@@ -97,52 +97,46 @@ std::string getmethod(client_info &client,std::string &path, size_t& len)
 	fill_response(resp);
 
 
-    path += client.request.path;
-    std::cerr << "path: "<< path << std::endl;
-	fileData filedata = read_fromFile(path);
-    len = filedata.len_file;
-    if (filedata.len_file == -1)
+//    path += request.path;
+//    std::cerr << "path: "<< path << std::endl;
+	fileData file_data = read_fromFile(path);
+    request.rep_len = file_data.len_file;
+    if (file_data.len_file == -1)
         return error404();
     else
     {
         resp.status_code = "HTTP/1.1 200 OK\r\n"; // hardcoded http version
 	    resp.Content_type += get_Content_type(path);
-	    resp.Content_len += long_to_string(filedata.len_file);
+	    resp.Content_len += long_to_string(file_data.len_file);
         response = resp.status_code;
         response += "Server: klinix\r\n";
         response += resp.Content_len + "\r\n";
         response += resp.Content_type + "\r\n" + "Connection: Keep-Alive\r\n\r\n";
-        len += response.length();
-        response.append(filedata.data);
+        request.rep_len += response.length();
+        response.append(file_data.data);
     }
     return response;
 }
 
-std::string handlmethod(std::vector<client_info>& clients)
+std::string handle_method(std::vector<client_info>& clients)
 {
     std::string response;
-	std::string location = "/Users/alaajili/Desktop/WebServ/fit-master"; // location ? hardcode
-    // int good = 0;
+	std::string location; // location ? hardcode
     for (size_t i = 0; i < clients.size(); i++) {
-        if (clients[i].request.ready)
-        {
-            std::cerr << "READY" << std::endl;
-			if (clients[i].request.method == 0)
-			{
-				/*----------GET------------*/
-                size_t  len;
-                clients[i].request.response = getmethod(clients[i],location, len);
-                clients[i].request.offset = 0; /// <----------
-                std::cerr << "sending response..." << std::endl;
-                // good = send(clients[i].sock, clients[i].request.response.c_str(), len, 0);
-                // std::cout << good << "    " << len << std::endl;
-			}
-            if (clients[i].request.method == 2)
-            {
+        for (size_t j = 0; j < clients[i].requests.size(); j++) {
+            if (clients[i].requests[j].method == 0 && clients[i].requests[j].response.empty()) {
+                /*----------GET------------*/
+                location = clients[i].requests[j].location.root;
+                location += clients[i].requests[j].path;
+                location += clients[i].requests[j].location.index;
+                std::cerr << "location => " << location << std::endl;
+                clients[i].requests[j].response = get_method(clients[i].requests[j], location);
+                clients[i].requests[j].offset = 0; /// <----------
+            }
+            if (clients[i].requests[j].method == 2) {
 
             }
         }
-
     }
     return response;
 }

@@ -19,16 +19,17 @@ std::vector<std::string>	split_request_str(std::string request_str)
 	return req;
 }
 
-void	parse_requests(std::vector<client_info>& clients)
-{
-	for (size_t i = 0; i < clients.size(); i++) {
-		if (clients[i].request.ready) {
-            std::cerr << "READY TO PARSE" << std::endl;
-			std::vector<std::string> req;
-			req = split_request_str(clients[i].request_str);
-			get_headers(req, clients[i].request);
-            std::cerr << clients[i].request_str << std::endl;
-            clients[i].request_str.clear();
-		}
-	}
+void	parse_requests(std::vector<client_info>& clients) {
+    for (size_t i = 0; i < clients.size(); i++) {
+        for (size_t j = 0; j < clients[i].requests_str.size(); j++) {
+            std::string req_str = clients[i].requests_str[j];
+            std::vector<std::string> req;
+            req = split_request_str(req_str);
+            Request request;
+            std::cerr << "{\n" << req_str << "}" << std::endl;
+            get_headers(req, request);
+            clients[i].requests.push_back(request);
+        }
+         clients[i].requests_str.clear();
+    }
 }

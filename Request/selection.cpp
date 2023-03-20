@@ -108,13 +108,14 @@ void    match_location(Request& request) {
             break;
         }
     }
-    std::cerr << request.location.root << std::endl;
 }
 
 void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers) {
     for (size_t i = 0; i < clients.size(); i++) {
-        if (clients[i].request.ready)
-            match_server_block(clients[i].request, servers);
-            match_location(clients[i].request);
+        for (size_t j = 0; j < clients[i].requests.size(); j++) {
+            match_server_block(clients[i].requests[j], servers);
+            match_location(clients[i].requests[j]);
+            std::cerr << clients[i].requests[j].location.root << std::endl;
+        }
     }
 }

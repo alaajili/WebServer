@@ -63,7 +63,7 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 	}
 	if (select(max_socket + 1, read_fds, write_fds, 0, 0) < 0) {
         std::cerr << "error in select()" << std::endl;
-        exit(1);
+        // exit(1);
     }
 }
 
@@ -83,31 +83,33 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 
 void	get_requests(std::vector<client_info>& clients, fd_set *read_fds, fd_set *write_fds)
 {
-    
 	for (size_t i = 0; i < clients.size(); i++) {
-        clients[i].request.ready = false;
+        std::string req;
 		if (FD_ISSET(clients[i].sock, read_fds)) {
-			int r;
-			char buff[1024];
+			int     r;
+			char    buff[1024];
 			r = recv(clients[i].sock, buff, 1024, 0);
             if (r < 0) {
                 std::cerr << "error in recv()" << std::endl;
-                exit(1);
+                continue;
             }
             else if (r == 0) {
-                std::cout << "client disconnected!!!" << std::endl;
+                std::cerr << "client disconnected!!!" << std::endl;
                 close(clients[i].sock);
                 clients.erase(clients.begin()+i);
                 continue;
             }
             else {
-                clients[i].request_str.insert(clients[i].request_str.size(), buff, r);
-                clients[i].request.ready = true;
+                req.insert(0, buff, r);
+                clients[i].requests_str.push_back(req);
+//                Request request;
+//                request.ready = true;
+//                clients[i].requests.push_back(request);
                 FD_SET(clients[i].sock, write_fds);
             }
 		}
-        if (FD_ISSET(clients[i].sock, write_fds))
-            std::cerr << "WRITABLE" << std::endl;
+//        if (FD_ISSET(clients[i].sock, write_fds))
+//            std::cerr << "WRITABLE" << std::endl;
 	}
 }
 
@@ -115,7 +117,7 @@ void	handle_requests(std::vector<Server>& servers)
 {
 	std::vector<int>			sockets;
 	std::vector<client_info>	clients;
-    std::string                 response;
+//     std::string                 response;
     size_t                   chunk_size = 1024;
 
 	sockets = init_sockets(servers);
@@ -128,25 +130,28 @@ void	handle_requests(std::vector<Server>& servers)
 		get_requests(clients, &read_fds, &write_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);
-        std::cerr << "number of clients: " << clients.size() << std::endl;
-        handlmethod(clients);
+        handle_method(clients);
         for (size_t i = 0; i < clients.size(); i++) {
-            if (!clients[i].request.response.empty()) {
-                std::string::size_type offset = clients[i].request.offset;
-                size_t remaining = clients[i].request.response.length() - offset;
+            for (size_t j = 0; j < clients[i].requests.size(); j++) {
+                std::string::size_type offset = clients[i].requests[j].offset;
+                size_t remaining = clients[i].requests[j].rep_len - offset;
                 size_t chunk = std::min(chunk_size, remaining);
-                ssize_t good = send(clients[i].sock, clients[i].request.response.c_str() + offset, chunk,0);
+                ssize_t good = send(clients[i].sock, clients[i].requests[j].response.c_str() + offset, chunk, 0);
                 if (good == -1) {
                     std::cerr << "Error sending data to client" << std::endl;
                     continue;
                 }
-                clients[i].request.offset += good;
-                 if (clients[i].request.offset >= clients[i].request.rep_len) {
-                     clients[i].request.done = true;
-                 }
+                clients[i].requests[j].offset += good;
             }
-            if (clients[i].request.done) {
+            for (size_t j = 0; j < clients[i].requests.size(); j++) {
+                if (clients[i].requests[j].offset >= clients[i].requests[j].rep_len) {
+                    clients[i].requests.erase(clients[i].requests.begin() + j);
+                    j--;
+                }
+            }
+            if (clients[i].requests.size() == 0) {
                 FD_CLR(clients[i].sock, &write_fds);
+                std::cerr << "client done" << std::endl;
             }
         }
 
