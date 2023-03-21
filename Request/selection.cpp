@@ -78,7 +78,7 @@ Server  get_server_block(std::string server_name, std::vector<Server> matched) {
 
 void    match_server_block(Request& request, std::vector<Server> servers) {
     std::string host_value;
-    (void)servers;
+
     for (size_t i = 0; i < request.headers.size(); i++) {
         if (request.headers[i].name == "Host") {
             host_value = request.headers[i].value;
@@ -89,23 +89,49 @@ void    match_server_block(Request& request, std::vector<Server> servers) {
     std::string server_name = get_server_name(host_value);
     int port = get_port(host_value);
     std::string host_ip = get_host_ip(server_name); // generate host ip
-    std::cerr << "server name: " << server_name << std::endl;
-    std::cerr << "port: " << port << std::endl;
-    std::cerr << "host ip: " << host_ip << std::endl;
 
     std::vector<Server> matched_servers = host_port_match(host_ip, port, servers);
     request.serv_block = get_server_block(server_name, matched_servers);
-    std::cerr << "BINGO: " << request.serv_block.location.size() << std::endl;
 }
+
+bool    is_directory(std::string path) {
+    struct stat info;
+
+    stat(path.c_str(), &info);
+    if (S_ISDIR(info.st_mode))
+        return true;
+    return false;
+}
+
 
 void    match_location(Request& request) {
     std::map<std::string, Location> locations = request.serv_block.location;
+    std::string path;
+
+    if (is_directory(request.path))
+        path = request.path;
+    else {
+        size_t f = request.path.find_last_of('/');
+        path = request.path.substr(0, f);
+    }
+    if (path.empty()) { path = "/"; }
 
     std::map<std::string, Location>::iterator it;
+    std::vector<std::pair<std::string, Location> >  matched_locations;
+
     for (it = locations.begin(); it != locations.end(); it++) {
-        if (it->first == request.path) {
-            request.location = it->second;
-            break;
+        std::string loc = it->first;
+        if (path.length() >= loc.length() && path.compare(0, loc.length(), loc) == 0) {
+            matched_locations.push_back(*it);
+        }
+    }
+
+    request.location = matched_locations[0].second;
+    size_t len = matched_locations[0].first.length();
+    for (size_t i = 1; i < matched_locations.size(); i++) {
+        if (matched_locations[i].first.length() > len) {
+            request.location = matched_locations[i].second;
+            len = matched_locations[i].first.length();
         }
     }
 }
@@ -115,7 +141,6 @@ void    server_block_selection(std::vector<client_info>& clients, std::vector<Se
         for (size_t j = 0; j < clients[i].requests.size(); j++) {
             match_server_block(clients[i].requests[j], servers);
             match_location(clients[i].requests[j]);
-            std::cerr << clients[i].requests[j].location.root << std::endl;
         }
     }
 }

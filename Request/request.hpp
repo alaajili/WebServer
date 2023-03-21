@@ -9,6 +9,7 @@
 #include <cstring> /// for linux
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -62,6 +63,7 @@ void	handle_requests(std::vector<Server>& servers);
 void	parse_requests(std::vector<client_info>& clients);
 void	get_headers(std::vector<std::string> req, Request& request);
 void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers);
+bool    is_directory(std::string path);
 
 /*--------------*/
 std::string handle_method(std::vector<client_info>& clients);
