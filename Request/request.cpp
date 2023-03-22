@@ -76,6 +76,7 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 			new_client.address_len = sizeof new_client.address;
 			new_client.sock = accept(sockets[i], (struct sockaddr*)&new_client.address,
 					&new_client.address_len);
+            fcntl(new_client.sock, F_SETFL, O_NONBLOCK);
 			clients.push_back(new_client);
 		}
 	}
@@ -118,7 +119,7 @@ void	handle_requests(std::vector<Server>& servers)
 	std::vector<int>			sockets;
 	std::vector<client_info>	clients;
 //     std::string                 response;
-    size_t                   chunk_size = 1024;
+    size_t                   chunk_size = 10000;
 
 	sockets = init_sockets(servers);
 	while (1337)
@@ -131,27 +132,35 @@ void	handle_requests(std::vector<Server>& servers)
         parse_requests(clients);
         server_block_selection(clients, servers);
         handle_method(clients);
+        std::cerr << "[DEBUG] number of clients: " << clients.size() << std::endl;
         for (size_t i = 0; i < clients.size(); i++) {
+            std::cerr << "[DEBUG] number of requests: " << clients[i].requests.size() << std::endl;
+            std::cerr << "[DEBUG] client No: " << i+1 << " socket: " << clients[i].sock << std::endl;
             for (size_t j = 0; j < clients[i].requests.size(); j++) {
                 std::string::size_type offset = clients[i].requests[j].offset;
                 size_t remaining = clients[i].requests[j].rep_len - offset;
                 size_t chunk = std::min(chunk_size, remaining);
+                std::cerr << "[DEBUG] chunk = " << chunk << std::endl;
                 ssize_t good = send(clients[i].sock, clients[i].requests[j].response.c_str() + offset, chunk, 0);
                 if (good == -1) {
                     std::cerr << "Error sending data to client" << std::endl;
-                    continue;
+                    break;
                 }
                 clients[i].requests[j].offset += good;
             }
             for (size_t j = 0; j < clients[i].requests.size(); j++) {
                 if (clients[i].requests[j].offset >= clients[i].requests[j].rep_len) {
                     clients[i].requests.erase(clients[i].requests.begin() + j);
-                    j--;
+                    j = 0;
+                    std::cerr << "(DEBUG) DONE" << std::endl;
                 }
             }
-            if (clients[i].requests.size() == 0) {
+            if (clients[i].requests.size() == 0 && FD_ISSET(clients[i].sock, &write_fds)) {
                 FD_CLR(clients[i].sock, &write_fds);
                 std::cerr << "client done" << std::endl;
+            }
+            else if (clients[i].requests.size() != 0) {
+                FD_SET(clients[i].sock, &write_fds);
             }
         }
 

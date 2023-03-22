@@ -134,6 +134,8 @@ void    match_location(Request& request) {
             len = matched_locations[i].first.length();
         }
     }
+    if (path == "/") { request.location.root += "/"; }
+    request.path.replace(0, len, request.location.root);
 }
 
 void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers) {

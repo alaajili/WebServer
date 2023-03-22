@@ -89,7 +89,7 @@ void	fill_response(response &_response)
 	_response.Content_len = "Content-Length: ";
 }
 
-std::string get_method(Request &request,std::string path)
+std::string get_method(Request &request)
 {
     response resp;
     std::string response;
@@ -99,14 +99,17 @@ std::string get_method(Request &request,std::string path)
 
 //    path += request.path;
 //    std::cerr << "path: "<< path << std::endl;
-	fileData file_data = read_fromFile(path);
+    if (is_directory(request.path))
+        request.path += "/" + request.location.index;
+    std::cerr << "(DEBUG) request.path: " << request.path << std::endl;
+	fileData file_data = read_fromFile(request.path);
     request.rep_len = file_data.len_file;
     if (file_data.len_file == -1)
         return error404();
     else
     {
         resp.status_code = "HTTP/1.1 200 OK\r\n"; // hardcoded http version
-	    resp.Content_type += get_Content_type(path);
+	    resp.Content_type += get_Content_type(request.path);
 	    resp.Content_len += long_to_string(file_data.len_file);
         response = resp.status_code;
         response += "Server: klinix\r\n";
@@ -118,6 +121,8 @@ std::string get_method(Request &request,std::string path)
     return response;
 }
 
+
+
 std::string handle_method(std::vector<client_info>& clients)
 {
     std::string response;
@@ -126,11 +131,11 @@ std::string handle_method(std::vector<client_info>& clients)
         for (size_t j = 0; j < clients[i].requests.size(); j++) {
             if (clients[i].requests[j].method == 0 && clients[i].requests[j].response.empty()) {
                 /*----------GET------------*/
-                location = clients[i].requests[j].location.root;
-                location += clients[i].requests[j].path;
-                location += clients[i].requests[j].location.index;
-                std::cerr << "location => " << location << std::endl;
-                clients[i].requests[j].response = get_method(clients[i].requests[j], location);
+//                location = clients[i].requests[j].location.root;
+//                location += clients[i].requests[j].path;
+//                location += clients[i].requests[j].location.index;
+//                std::cerr << "location => " << location << std::endl;
+                clients[i].requests[j].response = get_method(clients[i].requests[j]);
                 clients[i].requests[j].offset = 0; /// <----------
             }
             if (clients[i].requests[j].method == 2) {
