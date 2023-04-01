@@ -201,10 +201,12 @@ void	handle_requests(std::vector<Server>& servers)
 	sockets = init_sockets(servers);
 	while (1337)
 	{
+
 		fd_set  read_fds;
         fd_set  write_fds;
 		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
+        // std::cerr << "NUM OF CLIENTS: " << clients.size() << std::endl;
 		get_requests(clients, &read_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);

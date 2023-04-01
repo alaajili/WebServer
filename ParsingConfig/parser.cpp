@@ -107,9 +107,9 @@ Server  parse_data(Holder& holder)
             print_error("error");
 
     }
-    if (server.yes_or_no.locations == true)
+    if (server.yes_or_no.locations)
         server.location = holder.location;
-    if (server.yes_or_no.cgi == true)
+    if (server.yes_or_no.cgi)
         server.cgi = holder.tmp;
     return server;
 }

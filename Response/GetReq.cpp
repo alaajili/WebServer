@@ -121,30 +121,63 @@ size_t  hex_to_dec(std::string hex_str) {
 }
 
 void    handle_chunked(client_info& client, fd_set *read_fds) {
-    Request& request = client.request;
+    Request &request = client.request;
     char buff[1024];
     size_t r;
-    (void)read_fds;
+    (void) read_fds;
 
     if (!request.out_file.is_open()) {
-        request.out_file.open("upload");
-        size_t f = client.headers_str.str.find("\r\n\r\n");
-        request.body = client.headers_str.str.substr(f + 4);
+        request.out_file.open("b.mp4");
         request.size_bool = false;
-    }
-    else {
+    } else {
         r = recv(client.sock, buff, 1024, 0);
         request.body.append(buff, r);
         request.body_len += r;
     }
-
-    if (request.size_bool) {
-        size_t a = std::min(request.chunk_size, request.body_len);
-
+    bool ok = false;
+    while (request.body_len) {
+        if (request.size_bool) {
+            size_t a = std::min(request.chunk_size, request.body_len);
+            request.out_file.write(request.body.c_str(), a);
+            request.chunk_size -= a;
+            request.body_len -= a;
+            request.body.erase(0, a);
+            if (request.chunk_size == 0) {
+                request.size_bool = false;
+            }
+        } else {
+            size_t f = request.body.find("\r\n");
+            if (f == 0) {
+                request.body.erase(0, 2);
+                request.body_len -= 2;
+            }
+            else if (f != std::string::npos) {
+                std::string hex_str = request.body.substr(0, f);
+                request.chunk_size = hex_to_dec(hex_str);
+                request.body.erase(0, f+2);
+                request.body_len -= (f+2);
+                if (request.chunk_size == 0) {
+                    ok = true;
+                    break ;
+                }
+                request.size_bool = true;
+            }
+            else
+                break;
+        }
+    }
+    if (ok) {
+        request.resp_headers += (request.version + " 201 Created\r\n");
+        request.resp_headers += ("Content-Type: text/plain\r\n");
+        request.resp_headers += ("Content-Length: 8\r\n");
+        request.resp_headers += "Server: klinix\r\n";
+        request.resp_headers += "Connection: keep-alive\r\n\r\nuploaded";
+        client.writable = true;
+        request.out_file.close();
     }
 }
 
-void    POST_method(client_info& client, fd_set *read_fds)
+void	POST_method(client_info& client, fd_set *read_fds)
 {
     Request& request = client.request;
 
@@ -176,7 +209,6 @@ void    POST_method(client_info& client, fd_set *read_fds)
     }
     else {
         handle_chunked(client, read_fds);
-        std::cerr << "HERE" << std::endl;
     }
 }
 
