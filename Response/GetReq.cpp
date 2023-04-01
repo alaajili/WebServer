@@ -7,10 +7,10 @@
 std::string error404()
 {
     return "HTTP/1.1 404 Not Found\r\n"
-            "Server: klinix\r\n";
+            "Server: klinix\r\n\r\n";
 }
 
-std::string long_to_string(long num) {
+std::string long_to_string(size_t num) {
     std::ostringstream oss;
     oss << num;
     return oss.str();
@@ -37,7 +37,7 @@ std::map<std::string, std::string> init_map() {
     return m;
 }
 
-std::string get_Content_type(std::string &file_path)
+std::string get_content_type(std::string &file_path)
 {
 	static const std::map<std::string, std::string> extension_to_mime_type = init_map();
 
@@ -54,95 +54,150 @@ std::string get_Content_type(std::string &file_path)
 
 
 
-fileData	read_fromFile(std::string file_path)
+
+size_t  get_file_len(std::string path) {
+    struct stat st;
+
+    stat(path.c_str(), &st);
+    return st.st_size;
+}
+
+
+void    GET_response(client_info& client)
 {
-	std::string line;
-	fileData file_data;
-
-    std::ifstream myfile (file_path.c_str());
-
-    file_data.len_file = 0;
-    file_data.data = "";
-    while (myfile.good())
-    {
+    if (!client.request.headers_sent) {
+        send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
+        client.request.sent_bytes = 0;
+        client.request.headers_sent = true;
+        std::cout << "\033[33m" << "start sending data to client\033[0m" << std::endl;
+    }
+    else {
         char buff[1024];
-
-        myfile.read(buff, 1024);
-        //buff[myfile.gcount()] = 0;
-        file_data.len_file += myfile.gcount();
-        file_data.data.append(buff,myfile.gcount());
-
-    }
-    myfile.close();
-    return file_data;
-//    else
-//    {
-//        file_data.len_file = -1;
-//	    return file_data;
-//    }
-}
-
-
-void	fill_response(response &_response)
-{
-	_response.Content_type = "Content-Type: ";
-	_response.Content_len = "Content-Length: ";
-}
-
-std::string get_method(Request &request)
-{
-    response resp;
-    std::string response;
-
-	fill_response(resp);
-
-
-//    path += request.path;
-//    std::cerr << "path: "<< path << std::endl;
-    if (is_directory(request.path))
-        request.path += "/" + request.location.index;
-    std::cerr << "(DEBUG) request.path: " << request.path << std::endl;
-	fileData file_data = read_fromFile(request.path);
-    request.rep_len = file_data.len_file;
-    if (file_data.len_file == -1)
-        return error404();
-    else
-    {
-        resp.status_code = "HTTP/1.1 200 OK\r\n"; // hardcoded http version
-	    resp.Content_type += get_Content_type(request.path);
-	    resp.Content_len += long_to_string(file_data.len_file);
-        response = resp.status_code;
-        response += "Server: klinix\r\n";
-        response += resp.Content_len + "\r\n";
-        response += resp.Content_type + "\r\n" + "Connection: Keep-Alive\r\n\r\n";
-        request.rep_len += response.length();
-        response.append(file_data.data);
-    }
-    return response;
-}
-
-
-
-std::string handle_method(std::vector<client_info>& clients)
-{
-    std::string response;
-	std::string location; // location ? hardcode
-    for (size_t i = 0; i < clients.size(); i++) {
-        for (size_t j = 0; j < clients[i].requests.size(); j++) {
-            if (clients[i].requests[j].method == 0 && clients[i].requests[j].response.empty()) {
-                /*----------GET------------*/
-//                location = clients[i].requests[j].location.root;
-//                location += clients[i].requests[j].path;
-//                location += clients[i].requests[j].location.index;
-//                std::cerr << "location => " << location << std::endl;
-                clients[i].requests[j].response = get_method(clients[i].requests[j]);
-                clients[i].requests[j].offset = 0; /// <----------
-            }
-            if (clients[i].requests[j].method == 2) {
-
-            }
+        client.request.file.read(buff, 1024);
+        int r = client.request.file.gcount();
+        int rr = send(client.sock, buff, r, 0);
+        if (rr == -1) {
+            std::cerr << "ERROR IN SEND" << std::endl;
+            return;
+        }
+        client.request.sent_bytes += rr;
+        if (client.request.sent_bytes == client.request.file_len) {
+            client.request.clear();
+            client.headers_str.clear();
+            std::cerr << "\033[32m" << "GET REQUEST DONE\033[0m" << std::endl;
+            client.writable = false;
         }
     }
-    return response;
+}
+
+void    GET_method(client_info& client)
+{
+    Request& request = client.request;
+
+    std::cerr << "PATH: " << request.path << std::endl;
+    request.file.open(request.path.c_str());
+    if (!request.file.is_open()) {
+        //TODO: throw 404
+        std::cerr << "(THROW 404)" << std::endl;
+        exit(404);
+    }
+    request.resp_headers = "";
+    request.resp_headers += (request.version + " 200 OK\r\n");
+    request.resp_headers += ("Content-Type: " + get_content_type(request.path) + "\r\n");
+    request.file_len = get_file_len(request.path);
+    request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
+    request.resp_headers += "Server: klinix\r\n";
+    request.resp_headers += "Connection: keep-alive\r\n\r\n";
+    client.writable = true;
+}
+
+size_t  hex_to_dec(std::string hex_str) {
+    size_t x;
+
+    std::stringstream ss;
+    ss << std::hex << hex_str;
+    ss >> x;
+    return x;
+}
+
+void    handle_chunked(client_info& client, fd_set *read_fds) {
+    Request& request = client.request;
+    char buff[1024];
+    size_t r;
+    (void)read_fds;
+
+    if (!request.out_file.is_open()) {
+        request.out_file.open("upload");
+        size_t f = client.headers_str.str.find("\r\n\r\n");
+        request.body = client.headers_str.str.substr(f + 4);
+        request.size_bool = false;
+    }
+    else {
+        r = recv(client.sock, buff, 1024, 0);
+        request.body.append(buff, r);
+        request.body_len += r;
+    }
+
+    if (request.size_bool) {
+        size_t a = std::min(request.chunk_size, request.body_len);
+
+    }
+}
+
+void    POST_method(client_info& client, fd_set *read_fds)
+{
+    Request& request = client.request;
+
+    if (!request.chunked) {
+        if (!request.out_file.is_open()) {
+            request.out_file.open("im.mp4");
+            request.cont_len = request.get_content_length();
+            std::cerr << "content-length: " << request.cont_len << std::endl;
+            request.recved_bytes = 0;
+            size_t f = client.headers_str.str.find("\r\n\r\n");
+            std::string body = client.headers_str.str.substr(f + 4);
+            request.out_file.write(body.c_str(), body.length());
+            request.recved_bytes += body.length();
+        } else if (request.recved_bytes != request.cont_len) {
+            char buff[1024];
+            int r = recv(client.sock, buff, 1024, 0);
+            request.out_file.write(buff, r);
+            request.recved_bytes += r;
+        }
+        if (request.recved_bytes == request.cont_len) {
+            request.resp_headers += (request.version + " 201 Created\r\n");
+            request.resp_headers += ("Content-Type: text/plain\r\n");
+            request.resp_headers += ("Content-Length: 8\r\n");
+            request.resp_headers += "Server: klinix\r\n";
+            request.resp_headers += "Connection: keep-alive\r\n\r\nuploaded";
+            client.writable = true;
+            request.out_file.close();
+        }
+    }
+    else {
+        handle_chunked(client, read_fds);
+        std::cerr << "HERE" << std::endl;
+    }
+}
+
+void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds)
+{
+    for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+        client_info &client = *it;
+        if (FD_ISSET(client.sock, write_fds)) {
+            if (client.request.method == GET)
+                GET_response(client);
+            if (client.request.method == POST) {
+                send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
+                client.writable = false;
+            }
+        }
+        else if (client.headers_str.done) {
+            if (client.request.method == GET)
+                GET_method(client);
+            if (client.request.method == POST)
+                POST_method(client, read_fds);
+        }
+    }
 }
 

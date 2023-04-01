@@ -7,7 +7,7 @@
 int main(int ac, char **av)
 {
     std::vector<Server> servers;
-
+    signal(SIGPIPE, SIG_IGN);
     if (ac != 2)
     {
         std::cerr << "Usage: ./webserv [configuration file]" << std::endl;

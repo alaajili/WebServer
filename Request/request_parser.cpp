@@ -19,17 +19,24 @@ std::vector<std::string>	split_request_str(std::string request_str)
 	return req;
 }
 
-void	parse_requests(std::vector<client_info>& clients) {
-    for (size_t i = 0; i < clients.size(); i++) {
-        for (size_t j = 0; j < clients[i].requests_str.size(); j++) {
-            std::string req_str = clients[i].requests_str[j];
+void    check_headers(Request& request) {
+    request.chunked = false;
+    for (size_t i = 0; i < request.headers.size(); i++) {
+        if (request.headers[i].name == "Transfer-Encoding" && request.headers[i].value == "chunked") {
+            request.chunked = true;
+        }
+    }
+}
+
+void	parse_requests(std::list<client_info>& clients) {
+    for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+        if (it->headers_str.done && !it->headers_str.parsed) {
+            std::string req_str = it->headers_str.str;
             std::vector<std::string> req;
             req = split_request_str(req_str);
-            Request request;
-            std::cerr << "{\n" << req_str << "}" << std::endl;
-            get_headers(req, request);
-            clients[i].requests.push_back(request);
+            get_headers(req, it->request);
+            it->headers_str.parsed = true;
+            check_headers(it->request);
         }
-         clients[i].requests_str.clear();
     }
 }

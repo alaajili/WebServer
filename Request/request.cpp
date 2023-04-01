@@ -4,6 +4,64 @@
 
 #include "request.hpp"
 
+
+
+
+void    Request::clear() {
+    headers.clear();
+    headers_sent = false;
+    file.close();
+    file_len = 0;
+    sent_bytes = 0;
+    matched = false;
+    chunked = false;
+    resp_headers.clear();
+}
+
+size_t Request::get_content_length() {
+    for (size_t i = 0; i < headers.size(); i++) {
+        if (headers[i].name == "Content-Length")
+            return atoi(headers[i].value.c_str());
+    }
+    return 0;
+}
+
+void    RequestHeaders::clear() {
+    str.clear();
+    done = false;
+    parsed = false;
+}
+
+client_info::client_info() {
+    this->writable = false;
+    request.matched = false;
+}
+
+client_info::client_info(const client_info& ci) {
+    address_len = ci.address_len;
+    address = ci.address;
+    sock = ci.sock;
+    writable = ci.writable;
+
+    request.matched = ci.request.matched;
+
+    headers_str.done = ci.headers_str.done;
+    headers_str.parsed = ci.headers_str.parsed;
+}
+
+client_info&    client_info::operator=(const client_info& ci) {
+    address_len = ci.address_len;
+    address = ci.address;
+    sock = ci.sock;
+    writable = ci.writable;
+
+    request.matched = ci.request.matched;
+
+    headers_str.done = ci.headers_str.done;
+    headers_str.parsed = ci.headers_str.parsed;
+    return *this;
+}
+
 std::vector<int>	init_sockets(std::vector<Server>& servers)
 {
 	std::map<int, int>	port_sock;
@@ -11,14 +69,14 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 
 	for (size_t i = 0; i < servers.size(); i++) {
 		struct sockaddr_in  address;
-
         if (port_sock.find(servers[i].port) == port_sock.end()) {
             servers[i].sock_fd = socket(AF_INET, SOCK_STREAM, 0);
             if (servers[i].sock_fd < 0) {
                 std::cerr << "socket() failed!!" << std::endl;
                 exit(1);
             }
-
+            int value = 1;
+            setsockopt(servers[i].sock_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(int));
             fcntl(servers[i].sock_fd, F_SETFL, O_NONBLOCK);
 
             address.sin_family = AF_INET;
@@ -30,7 +88,7 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
                 std::cerr << "bind() failed!!" << std::endl;
                 exit(1);
             }
-            if (listen(servers[i].sock_fd, 10)) {
+            if (listen(servers[i].sock_fd, 100)) {
                 std::cerr << "listen() failed!!" << std::endl;
                 exit(1);
             }
@@ -44,11 +102,10 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
     return sockets;
 }
 
-void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_info>& clients,
+void	wait_on_clients(const std::vector<int>& sockets,std::list<client_info>& clients,
 						fd_set *read_fds, fd_set *write_fds)
 {
-    std::cerr << "end here" << std::endl;
-	int max_socket  = -1;
+	int max_socket = -1;
 
 	FD_ZERO(read_fds);
     FD_ZERO(write_fds);
@@ -57,33 +114,31 @@ void	wait_on_clients(const std::vector<int>& sockets,const std::vector<client_in
 		if (sockets[i] > max_socket)
 			max_socket = sockets[i];
 	}
-	for (size_t i = 0; i < clients.size(); i++) {
-        FD_SET(clients[i].sock, read_fds);
-        if (clients[i].requests.size() != 0) {
-            FD_SET(clients[i].sock, write_fds);
-            std::cerr << "[DEBUG] set it in write set" << std::endl;
-        }
-		// FD_SET(clients[i].sock, write_fds);
-		if (clients[i].sock > max_socket)
-			max_socket = clients[i].sock;
+	for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+        if (!it->writable)
+            FD_SET(it->sock, read_fds);
+        else
+            FD_SET(it->sock, write_fds);
+		if (it->sock > max_socket)
+			max_socket = it->sock;
 	}
     while (1) {
         int ret = select(max_socket + 1, read_fds, write_fds, 0, 0);
         if (ret < 0) {
-            std::cout << "ERROR IN SELECT()" << std::endl;
-            exit(1);
+            // TODO: throw select() exception
+            continue;
         }
         else if (ret == 0) {
             std::cerr << "GO AGAIN" << std::endl;
             continue;
         }
-        else
+        else {
             break;
+        }
     }
-
 }
 
-void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& clients,
+void	accept_clients(const std::vector<int>& sockets, std::list<client_info>& clients,
 					fd_set *read_fds)
 {
 	for (size_t i = 0; i < sockets.size(); i++) {
@@ -93,51 +148,55 @@ void	accept_clients(const std::vector<int>& sockets, std::vector<client_info>& c
 			new_client.sock = accept(sockets[i], (struct sockaddr*)&new_client.address,
 					&new_client.address_len);
             fcntl(new_client.sock, F_SETFL, O_NONBLOCK);
+            new_client.writable = false;
+            new_client.headers_str.done = false;
+            new_client.headers_str.parsed = false;
 			clients.push_back(new_client);
 		}
 	}
 }
 
-void	get_requests(std::vector<client_info>& clients, fd_set *read_fds)
+void	get_requests(std::list<client_info>& clients, fd_set *read_fds)
 {
-	for (size_t i = 0; i < clients.size(); i++) {
-        std::string req;
-		if (FD_ISSET(clients[i].sock, read_fds)) {
-			int     r;
-			char    buff[1024];
-			r = recv(clients[i].sock, buff, 1024, 0);
-            if (r < 0) {
-                std::cerr << "error in recv()" << std::endl;
-                close(clients[i].sock);
-                clients.erase(clients.begin()+i);
+	for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+        if (FD_ISSET(it->sock, read_fds) && !it->headers_str.done) {
+            int r;
+            char buff[1024];
+            r = recv(it->sock, buff, 1024, 0);
+            if (r == 0) {
+                std::cerr << "Client Disconnected!!! r == 0" << std::endl;
+                close(it->sock);
+                std::list<client_info>::iterator it2 = it;
+                it2--;
+                clients.erase(it);
+                it = it2;
                 continue;
-            }
-            else if (r == 0) {
-                std::cerr << "client disconnected!!!" << std::endl;
-                close(clients[i].sock);
-                clients.erase(clients.begin()+i);
+            } else if (r < 0) {
+                std::cerr << "Client Disconnected!!! r < 0" << std::endl;
+                close(it->sock);
+                std::list<client_info>::iterator it2 = it;
+                it2--;
+                clients.erase(it);
+                it = it2;
                 continue;
+            } else {
+                it->headers_str.str.append(buff, r);
+                size_t f = it->headers_str.str.find("\r\n\r\n");
+                if (f != std::string::npos) {
+                    it->headers_str.done = true;
+                    int start = (f % 1024) + 4;
+                    it->request.body.append(buff + start, buff + r);
+                    it->request.body_len = r - start;
+                }
             }
-            else {
-                req.insert(0, buff, r);
-                clients[i].requests_str.push_back(req);
-//                Request request;
-//                request.ready = true;
-//                clients[i].requests.push_back(request);
-                // FD_SET(clients[i].sock, write_fds);
-            }
-		}
-//        if (FD_ISSET(clients[i].sock, write_fds))
-//            std::cerr << "WRITABLE" << std::endl;
-	}
+        }
+    }
 }
 
 void	handle_requests(std::vector<Server>& servers)
 {
-	std::vector<int>			sockets;
-	std::vector<client_info>	clients;
-//     std::string                 response;
-    size_t                   chunk_size = 10000;
+	std::vector<int>		sockets;
+	std::list<client_info>	clients;
 
 	sockets = init_sockets(servers);
 	while (1337)
@@ -149,43 +208,7 @@ void	handle_requests(std::vector<Server>& servers)
 		get_requests(clients, &read_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);
-        handle_method(clients);
-        std::cerr << "[DEBUG] number of clients: " << clients.size() << std::endl;
-        for (size_t i = 0; i < clients.size(); i++) {
-            std::cerr << "[DEBUG] number of requests: " << clients[i].requests.size() << std::endl;
-            std::cerr << "[DEBUG] client No: " << i+1 << " socket: " << clients[i].sock << std::endl;
-            if (FD_ISSET(clients[i].sock, &write_fds)) {
-                for (size_t j = 0; j < clients[i].requests.size(); j++) {
-                    std::string::size_type offset = clients[i].requests[j].offset;
-                    size_t remaining = clients[i].requests[j].rep_len - offset;
-                    size_t chunk = std::min(chunk_size, remaining);
-                    std::cerr << "[DEBUG] chunk = " << chunk << std::endl;
-                    std::cerr << "HERE WE GO" << std::endl;
-                    ssize_t good = send(clients[i].sock, clients[i].requests[j].response.c_str() + offset, chunk, 0);
-                    if (good == -1) {
-                        std::cerr << "Error sending data to client" << std::endl;
-                        continue;
-                    }
-                    clients[i].requests[j].offset += good;
-                }
-                for (size_t j = 0; j < clients[i].requests.size(); j++) {
-                    if (clients[i].requests[j].offset >= clients[i].requests[j].rep_len) {
-                        clients[i].requests.erase(clients[i].requests.begin() + j);
-                        j = 0;
-                        std::cerr << "(DEBUG) DONE" << std::endl;
-                    }
-                }
-            }
-            if (clients[i].requests.size() == 0 && FD_ISSET(clients[i].sock, &write_fds)) {
-                FD_CLR(clients[i].sock, &write_fds);
-                std::cerr << "client done" << std::endl;
-            }
-            else if (clients[i].requests.size() != 0) {
-                FD_SET(clients[i].sock, &write_fds);
-                std::cerr << "HERE" << std::endl;
-            }
-        }
-
+        handle_method(clients, &write_fds, &read_fds);
 	}
 }
 

@@ -21,6 +21,8 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+#include <list>
+#include <iterator>
 
 
 
@@ -33,40 +35,68 @@ struct Header {
 	std::string value;
 };
 
+struct RequestHeaders {
+    std::string str;
+    bool        done;
+    bool        parsed;
+
+    void    clear();
+};
+
 struct Request {
 	Method				    method;
 	std::string			    path;
 	std::string			    version;
 	std::vector<Header>	    headers;
-	std::string			    body;
-	bool				    ready;
-	std::string			    response;
-	size_t				    rep_len;
-	bool				    done;
-	std::string::size_type  offset;
+    bool                    headers_sent;
+    std::ifstream           file;
+    std::ofstream           out_file;
+    size_t                  file_len;
+    size_t                  sent_bytes;
+    size_t                  recved_bytes;
+    std::string             resp_headers;
+
+    size_t                  cont_len;
+    bool                    chunked;
+    std::string             body;
+    size_t                  body_len;
+    size_t                  chunk_size;
+    bool                    size_bool;
+
 
     // server block and location
     Server      serv_block;
     Location    location;
+    bool        matched;
+
+    void    clear();
+    size_t  get_content_length();
+
 };
 
 struct client_info {
 	socklen_t				    address_len;
 	struct sockaddr_storage	    address;
 	int						    sock;
-	std::vector<std::string>    requests_str;
-	std::vector<Request>        requests;
+    RequestHeaders              headers_str;
+	Request                     request;
+    bool                        writable;
+
+    client_info();
+    client_info(const client_info& ci);
+    client_info&    operator=(const client_info& ci);
+
 };
 
 
 void	handle_requests(std::vector<Server>& servers);
-void	parse_requests(std::vector<client_info>& clients);
+void	parse_requests(std::list<client_info>& clients);
 void	get_headers(std::vector<std::string> req, Request& request);
-void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers);
+void    server_block_selection(std::list<client_info>& clients, std::vector<Server> servers);
 bool    is_directory(std::string path);
 
 /*--------------*/
-std::string handle_method(std::vector<client_info>& clients);
+void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds);
 /*-------------*/
 
 #endif //WEBSERVER_REQUEST_HPP

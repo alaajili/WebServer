@@ -136,13 +136,16 @@ void    match_location(Request& request) {
     }
     if (path == "/") { request.location.root += "/"; }
     request.path.replace(0, len, request.location.root);
+    if (is_directory(request.path))
+        request.path += request.location.index;
 }
 
-void    server_block_selection(std::vector<client_info>& clients, std::vector<Server> servers) {
-    for (size_t i = 0; i < clients.size(); i++) {
-        for (size_t j = 0; j < clients[i].requests.size(); j++) {
-            match_server_block(clients[i].requests[j], servers);
-            match_location(clients[i].requests[j]);
+void    server_block_selection(std::list<client_info>& clients, std::vector<Server> servers) {
+    for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+        if (it->headers_str.done && !it->request.matched) {
+            match_server_block(it->request, servers);
+            match_location(it->request);
+            it->request.matched = true;
         }
     }
 }

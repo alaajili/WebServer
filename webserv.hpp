@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <vector>
+#include <list>
 #include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
