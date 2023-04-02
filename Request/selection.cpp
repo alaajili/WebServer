@@ -108,6 +108,7 @@ void    match_location(Request& request) {
     std::map<std::string, Location> locations = request.serv_block.location;
     std::string path;
 
+    request.url = request.path;
     if (is_directory(request.path))
         path = request.path;
     else {
@@ -136,8 +137,10 @@ void    match_location(Request& request) {
     }
     if (path == "/") { request.location.root += "/"; }
     request.path.replace(0, len, request.location.root);
-    if (is_directory(request.path))
-        request.path += request.location.index;
+    // if (is_directory(request.path) && request.location.yes_no.index) {
+    //         request.path += request.location.index;
+    //         std::cerr << request.location.root << std::endl;
+    // }
 }
 
 void    server_block_selection(std::list<client_info>& clients, std::vector<Server> servers) {

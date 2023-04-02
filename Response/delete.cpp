@@ -1,12 +1,8 @@
 #include "GetReq.h"
 
-std::string delete_method(Request &request, const std::string& document_root) {
-    request.path.erase(std::remove(request.path.begin(), request.path.end(), '/'), request.path.end());
-
-    if (request.path.empty()) {
-        request.path = request.location.index;
-    }
-    std::string file_path = document_root + request.path;
+std::string delete_method(Request &request) {
+    
+    std::string file_path = request.path;
 
     std::ifstream file(file_path.c_str(), std::ios::binary);
     if (!file.good()) {
@@ -28,15 +24,16 @@ std::string delete_method(Request &request, const std::string& document_root) {
     return oss.str();
 }
 
-std::string auto_index(std::string& directory)
+std::string auto_index(Request& request) /// TODO print just the path requested not the full path (root + path)
 {
+    std::string directory = request.path;
     std::stringstream ss;
     ss << "<html>\n"
-       << "<head><title>Index of " << directory << "</title></head>\n"
+       << "<head><title>Index of " << request.url << "</title></head>\n"
        << "<body>\n"
-       << "<h1>Index of " << directory << "</h1>\n"
+       << "<h1>Index of " << request.url << "</h1>\n"
        << "<table>\n"
-       << "<tr><th>Name</th><th>Last Modified</th><th>Size</th></tr>\n";
+       << "<tr><th>  Name  </th><th>  Last Modified  </th><th>  Size  </th></tr>\n";
 
     DIR* dir = opendir(directory.c_str());
     if (dir != NULL)
@@ -54,7 +51,6 @@ std::string auto_index(std::string& directory)
                 {
                     char last_modified[80];
                     strftime(last_modified, 80, "%Y-%m-%d %H:%M:%S", localtime(&file_stat.st_mtime));
-
                     std::string size;
                     if (S_ISREG(file_stat.st_mode))
                     {
@@ -62,12 +58,10 @@ std::string auto_index(std::string& directory)
                         size_ss << file_stat.st_size;
                         size = size_ss.str();
                     }
-
                     ss << "<tr><td><a href=\"" << name << "\">" << name << "</a></td><td>" << last_modified << "</td><td>" << size << "</td></tr>\n";
                 }
             }
         }
-
         closedir(dir);
     }
 
