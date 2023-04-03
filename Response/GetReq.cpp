@@ -183,14 +183,12 @@ void	POST_method(client_info& client, fd_set *read_fds)
 
     if (!request.chunked) {
         if (!request.out_file.is_open()) {
-            request.out_file.open("im.mp4");
+            request.out_file.open("b");
             request.cont_len = request.get_content_length();
             std::cerr << "content-length: " << request.cont_len << std::endl;
             request.recved_bytes = 0;
-            size_t f = client.headers_str.str.find("\r\n\r\n");
-            std::string body = client.headers_str.str.substr(f + 4);
-            request.out_file.write(body.c_str(), body.length());
-            request.recved_bytes += body.length();
+            request.out_file.write(request.body.c_str(), request.body_len);
+            request.recved_bytes += request.body_len;
         } else if (request.recved_bytes != request.cont_len) {
             char buff[1024];
             int r = recv(client.sock, buff, 1024, 0);
