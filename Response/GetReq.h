@@ -6,6 +6,7 @@
 #define WEBSERVER_GETREQ_H
 #include "../Request/request.hpp"
 #include <algorithm>
+#include <dirent.h>
 #include <map>
 
 struct fileData {
@@ -23,5 +24,6 @@ class response {
         std::string vrs_protocol;
 };
 
-
+std::string long_to_string(size_t num);
+std::string auto_index(Request& request);
 #endif //WEBSERVER_GETREQ_H

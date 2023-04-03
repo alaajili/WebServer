@@ -7,7 +7,9 @@
 std::string error404()
 {
     return "HTTP/1.1 404 Not Found\r\n"
-            "Server: klinix\r\n\r\n";
+            "Server: klinix\r\n"
+            "Content-Length: 12\r\n\r\n"
+            "<h1>404</h1>";
 }
 
 std::string long_to_string(size_t num) {
@@ -93,13 +95,31 @@ void    GET_response(client_info& client)
 void    GET_method(client_info& client)
 {
     Request& request = client.request;
-
+ 
     std::cerr << "PATH: " << request.path << std::endl;
     request.file.open(request.path.c_str());
+    if (is_directory(request.path))
+    {
+        if (request.path[request.path.length() - 1] == '/'){
+            request.resp_headers = auto_index(request);
+            client.writable = true;
+        }
+        else
+        {
+            request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";
+            request.resp_headers +=  "Location: " + request.url + "/\r\n";
+            request.resp_headers +=  "Content-Length: 0\r\n\r\n";
+            request.file_len = 0;
+            client.writable = true;
+        }
+        return;
+    }
     if (!request.file.is_open()) {
-        //TODO: throw 404
-        std::cerr << "(THROW 404)" << std::endl;
-        exit(404);
+        std::cerr << "(THROW 404) | PATH ERROR : " << request.path << std::endl;
+       request.resp_headers = error404();
+       client.writable = true;
+       request.file_len = 0;
+        return ;
     }
     request.resp_headers = "";
     request.resp_headers += (request.version + " 200 OK\r\n");
