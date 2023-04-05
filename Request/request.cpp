@@ -152,6 +152,8 @@ void	accept_clients(const std::vector<int>& sockets, std::list<client_info>& cli
             new_client.headers_str.done = false;
             new_client.headers_str.parsed = false;
 			clients.push_back(new_client);
+			std::cerr << "\033[1;32m" << "NEW CLIENT CONNECTED marhbaaa biiiiik" << std::endl;
+			std::cerr << "NUMBER OF CLIENTS: " << clients.size() << "\033[0m" <<std::endl;
 		}
 	}
 }
@@ -206,7 +208,6 @@ void	handle_requests(std::vector<Server>& servers)
         fd_set  write_fds;
 		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
-        // std::cerr << "NUM OF CLIENTS: " << clients.size() << std::endl;
 		get_requests(clients, &read_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);

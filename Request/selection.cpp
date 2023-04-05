@@ -106,48 +106,45 @@ bool    is_directory(std::string path) {
 
 void    match_location(Request& request) {
     std::map<std::string, Location> locations = request.serv_block.location;
-    std::string path;
 
-    request.url = request.path;
-    if (is_directory(request.path))
-        path = request.path;
-    else {
-        size_t f = request.path.find_last_of('/');
-        path = request.path.substr(0, f);
-    }
-    if (path.empty()) { path = "/"; }
+    request.uri = request.path;
+	std::cerr << "URI: " << request.uri<< std::endl;
 
     std::map<std::string, Location>::iterator it;
     std::vector<std::pair<std::string, Location> >  matched_locations;
 
     for (it = locations.begin(); it != locations.end(); it++) {
         std::string loc = it->first;
-        if (path.length() >= loc.length() && path.compare(0, loc.length(), loc) == 0) {
+        if (request.path.length() >= loc.length() && request.path.compare(0, loc.length(), loc) == 0) {
             matched_locations.push_back(*it);
         }
     }
+	std::cerr << "matched locations: " << matched_locations.size() << std::endl;
 
     request.location = matched_locations[0].second;
     size_t len = matched_locations[0].first.length();
+	if (matched_locations[0].first == "/")
+		request.location.root += "/";
+
     for (size_t i = 1; i < matched_locations.size(); i++) {
         if (matched_locations[i].first.length() > len) {
             request.location = matched_locations[i].second;
+			std::cerr << "length: " << matched_locations[i].first.length() << std::endl;
+			if (matched_locations[i].first == "/")
+				request.location.root += "/";
             len = matched_locations[i].first.length();
         }
     }
-    if (path == "/") { request.location.root += "/"; }
-    request.path.replace(0, len, request.location.root);
-    // if (is_directory(request.path) && request.location.yes_no.index) {
-    //         request.path += request.location.index;
-    //         std::cerr << request.location.root << std::endl;
-    // }
+	 request.path.replace(0, len, request.location.root);
 }
 
 void    server_block_selection(std::list<client_info>& clients, std::vector<Server> servers) {
     for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
         if (it->headers_str.done && !it->request.matched) {
             match_server_block(it->request, servers);
+			std::cerr << "num of locations: " << it->request.serv_block.location.size() << std::endl;
             match_location(it->request);
+			std::cerr << "location root: " << it->request.location.root << std::endl;
             it->request.matched = true;
         }
     }

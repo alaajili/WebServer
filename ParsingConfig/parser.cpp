@@ -47,6 +47,11 @@ Location    take_location(Holder &holder)
             loc.yes_no.index = true;
             loc.index = holder.pick_index();
         }
+		else if (id == "upload_path")
+		{
+			loc.yes_no.upload_path = true;
+			loc.upload_path = holder.take_upload_path();
+		}
         else
             print_error("error in location");
     }
@@ -79,11 +84,6 @@ Server  parse_data(Holder& holder)
         {
             server.yes_or_no.error_pages = true;
             server.error_pages = holder.take_error_pages();
-        }
-        else if (id == "upload_path")
-        {
-            server.yes_or_no.upload_path = true;
-            server.upload_path = holder.take_upload_path();
         }
         else if (id == "cgi")
         {

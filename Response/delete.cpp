@@ -16,7 +16,7 @@ std::string delete_method(Request &request) {
         return "HTTP/1.1 500 Internal Server Error\r\n"
                "Server: klinix\r\n";
     }
-    std::ostringstream oss;
+    std::ostringstream	oss;
     oss << "HTTP/1.1 204 No Content\r\n"
            "Server: klinix\r\n"
            "Connection: close\r\n\r\n";
@@ -29,9 +29,15 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
     std::string directory = request.path;
     std::stringstream ss;
     ss << "<html>\n"
-       << "<head><title>Index of " << request.url << "</title></head>\n"
+       << "<head>\n"
+	   << "<title>Index of " << request.uri << "</title>\n"
+	   << "<style>\n"
+	   << "table, th, td {\n"
+	   << "border: 1px solid black;}\n"
+	   << "</style>\n"
+	   << "</head>\n"
        << "<body>\n"
-       << "<h1>Index of " << request.url << "</h1>\n"
+       << "<h1>Index of " << request.uri << "</h1>\n"
        << "<table>\n"
        << "<tr><th>  Name  </th><th>  Last Modified  </th><th>  Size  </th></tr>\n";
 
@@ -42,8 +48,8 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
         while ((entry = readdir(dir)) != NULL)
         {
             std::string name(entry->d_name);
-            if (name != "." && name != "..")
-            {
+//            if (name != "." && name != "..")
+//            {
                 std::string path = directory + "/" + name;
 
                 struct stat file_stat;
@@ -58,8 +64,9 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
                         size_ss << file_stat.st_size;
                         size = size_ss.str();
                     }
-                    ss << "<tr><td><a href=\"" << name << "\">" << name << "</a></td><td>" << last_modified << "</td><td>" << size << "</td></tr>\n";
-                }
+                    ss << "<tr><td><a href=\"" << name << "\">" << name << "</a></td><td>" <<
+						last_modified << "</td><td>" << size << "</td></tr>\n";
+//                }
             }
         }
         closedir(dir);
@@ -72,7 +79,7 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
     std::string response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Type: text/html\r\n";
     response += "Content-Length: " + long_to_string(ss.str().size()) + "\r\n";
-    response += "Connection: close\r\n";
+    response += "Connection: keep-alive\r\n";
     response += "\r\n";
     response += ss.str();
 

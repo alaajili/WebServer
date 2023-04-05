@@ -46,7 +46,7 @@ struct RequestHeaders {
 struct Request {
 	Method				    method;
 	std::string			    path;
-    std::string             url;
+    std::string             uri;
 	std::string			    version;
 	std::vector<Header>	    headers;
     bool                    headers_sent;

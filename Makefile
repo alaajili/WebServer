@@ -4,7 +4,7 @@
 NAME = webserv
 SRCS = webserv.cpp ParsingConfig/holder.cpp ParsingConfig/parser.cpp ParsingConfig/read_from_conf.cpp \
 Response/GetReq.cpp ParsingConfig/server_location.cpp Request/request.cpp Request/request_parser.cpp \
-Request/utils.cpp Request/selection.cpp
+Request/utils.cpp Request/selection.cpp Response/delete.cpp
 OBJS = $(SRCS:.cpp=.o)
 CC = c++
 CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
