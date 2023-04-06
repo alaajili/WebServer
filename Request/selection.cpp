@@ -79,12 +79,7 @@ Server  get_server_block(std::string server_name, std::vector<Server> matched) {
 void    match_server_block(Request& request, std::vector<Server> servers) {
     std::string host_value;
 
-    for (size_t i = 0; i < request.headers.size(); i++) {
-        if (request.headers[i].name == "Host") {
-            host_value = request.headers[i].value;
-            break;
-        }
-    }
+	host_value = request.headers["Host"];
     // get infos from the host header
     std::string server_name = get_server_name(host_value);
     int port = get_port(host_value);

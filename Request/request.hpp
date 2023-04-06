@@ -30,10 +30,6 @@ class Server;
 
 enum Method {GET, POST, DELETE, NONE};
 
-struct Header {
-	std::string	name;
-	std::string value;
-};
 
 struct RequestHeaders {
     std::string str;
@@ -44,18 +40,19 @@ struct RequestHeaders {
 };
 
 struct Request {
-	Method				    method;
-	std::string			    path;
-    std::string             uri;
-	std::string			    version;
-	std::vector<Header>	    headers;
-    bool                    headers_sent;
-    std::ifstream           file;
-    std::ofstream           out_file;
-    size_t                  file_len;
-    size_t                  sent_bytes;
-    size_t                  recved_bytes;
-    std::string             resp_headers;
+	Method				    			method;
+	std::string			    			path;
+    std::string             			uri;
+	std::string			    			version;
+	std::map<std::string, std::string>	headers;
+    bool                    			headers_sent;
+    std::ifstream           			file;
+    std::ofstream           			out_file;
+    size_t                  			file_len;
+    size_t                  			sent_bytes;
+    size_t                  			recved_bytes;
+    std::string             			resp_headers;
+
 
     size_t                  cont_len;
     bool                    chunked;

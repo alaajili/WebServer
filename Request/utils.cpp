@@ -82,9 +82,9 @@ void    get_headers(std::vector<std::string> req, Request& request)
 	request.version = get_version(req[0], request.path.length());
 	for (size_t i = 1; i < req.size(); i++)
 	{
-        Header header;
-        header.name = get_header_name(req[i]);
-        header.value = get_header_value(req[i]);
-        request.headers.push_back(header);
+        std::string name, value;
+        name = get_header_name(req[i]);
+        value = get_header_value(req[i]);
+        request.headers.insert(std::make_pair(name, value));
 	}
 }

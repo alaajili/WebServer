@@ -18,13 +18,6 @@ void    Request::clear() {
     resp_headers.clear();
 }
 
-size_t Request::get_content_length() {
-    for (size_t i = 0; i < headers.size(); i++) {
-        if (headers[i].name == "Content-Length")
-            return atoi(headers[i].value.c_str());
-    }
-    return 0;
-}
 
 void    RequestHeaders::clear() {
     str.clear();

@@ -21,11 +21,8 @@ std::vector<std::string>	split_request_str(std::string request_str)
 
 void    check_headers(Request& request) {
     request.chunked = false;
-    for (size_t i = 0; i < request.headers.size(); i++) {
-        if (request.headers[i].name == "Transfer-Encoding" && request.headers[i].value == "chunked") {
-            request.chunked = true;
-        }
-    }
+    if ( request.headers["Transfer-Encoding"] == "chunked" )
+		request.chunked = true;
 }
 
 void	parse_requests(std::list<client_info>& clients) {
