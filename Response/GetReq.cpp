@@ -8,8 +8,15 @@ std::string error404()
 {
     return "HTTP/1.1 404 Not Found\r\n"
             "Server: klinix\r\n"
-            "Content-Length: 12\r\n\r\n"
-            "<h1>404</h1>";
+            "Content-Length: 22\r\n\r\n"
+            "<h1>404 Not Found</h1>";
+}
+
+std::string error_403() {
+	return "HTTP/1.1 403 Forbidden\r\n"
+		   "Server: klinix\r\n"
+		   "Content-Length: 22\r\n\r\n"
+		   "<h1>403 Forbidden</h1>";
 }
 
 std::string long_to_string(size_t num) {
@@ -54,9 +61,6 @@ std::string get_content_type(std::string &file_path)
     }
 }
 
-
-
-
 size_t  get_file_len(std::string path) {
     struct stat st;
 
@@ -65,61 +69,79 @@ size_t  get_file_len(std::string path) {
 }
 
 
-void    GET_response(client_info& client)
+void    send_response(client_info& client)
 {
     if (!client.request.headers_sent) {
         send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
         client.request.sent_bytes = 0;
         client.request.headers_sent = true;
-        std::cout << "\033[33m" << "start sending data to client\033[0m" << std::endl;
+        std::cout << "\033[1;33m" << "start sending data to client\033[0m" << std::endl;
     }
     else {
-        char buff[1024];
-        client.request.file.read(buff, 1024);
-        int r = client.request.file.gcount();
-        int rr = send(client.sock, buff, r, 0);
-        if (rr == -1) {
-            std::cerr << "ERROR IN SEND" << std::endl;
-            return;
-        }
-        client.request.sent_bytes += rr;
-        if (client.request.sent_bytes == client.request.file_len) {
+		if (client.request.file_len) {
+			char buff[1024];
+			client.request.file.read(buff, 1024);
+			int r = client.request.file.gcount();
+			int rr = send(client.sock, buff, r, 0);
+			if (rr == -1) {
+				std::cerr << "ERROR IN SEND" << std::endl;
+				return;
+			}
+			client.request.sent_bytes += rr;
+		}
+		if (client.request.sent_bytes == client.request.file_len) {
             client.request.clear();
             client.headers_str.clear();
-            std::cerr << "\033[32m" << "GET REQUEST DONE\033[0m" << std::endl;
+            std::cerr << "\033[1;32m" << "TRANSFER DATA DONE\033[0m" << std::endl;
             client.writable = false;
         }
     }
 }
 
+void	moved_permanently(Request &request) {
+	request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";
+	request.resp_headers += "Location: " + request.uri + "/\r\n";
+	request.resp_headers += "Content-Length: 0\r\n\r\n";
+}
+
 void    GET_method(client_info& client)
 {
     Request& request = client.request;
- 
-    std::cerr << "PATH: " << request.path << std::endl;
-    request.file.open(request.path.c_str());
-    if (is_directory(request.path))
-    {
-        if (request.path[request.path.length() - 1] == '/'){
-            request.resp_headers = auto_index(request);
-            client.writable = true;
-        }
-        else
-        {
-            request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";
-            request.resp_headers +=  "Location: " + request.url + "/\r\n";
-            request.resp_headers +=  "Content-Length: 0\r\n\r\n";
-            request.file_len = 0;
-            client.writable = true;
-        }
-        return;
+
+
+	std::cerr << "PATH: " << request.path << std::endl;
+	// check if is a directory
+    if (is_directory(request.path)) {
+		if (request.uri[request.uri.length() - 1] != '/') {
+			moved_permanently(request);
+			request.file_len = 0;
+			client.writable = true;
+			return;
+		}
+        else if (request.location.yes_no.index) // if there is an index append it
+            request.path += request.location.index;
+		else if (request.location.autoindex == ON) {
+			request.resp_headers = auto_index(request);
+			request.file_len = 0;
+			client.writable = true;
+			return;
+		}
+		else {
+			request.resp_headers = error_403();
+			client.writable = true;
+			request.file_len = 0;
+			return ;
+		}
     }
+	// if is a file try to open it
+	request.file.open(request.path.c_str());
+	// check if not open
     if (!request.file.is_open()) {
-        std::cerr << "(THROW 404) | PATH ERROR : " << request.path << std::endl;
-       request.resp_headers = error404();
-       client.writable = true;
-       request.file_len = 0;
-        return ;
+		std::cerr << "\33[1;31m(FILE NOT FOUND) | PATH ERROR : " << request.path << "\033[0m" << std::endl;
+		request.resp_headers = error404();
+		client.writable = true;
+		request.file_len = 0;
+		return ;
     }
     request.resp_headers = "";
     request.resp_headers += (request.version + " 200 OK\r\n");
@@ -129,6 +151,7 @@ void    GET_method(client_info& client)
     request.resp_headers += "Server: klinix\r\n";
     request.resp_headers += "Connection: keep-alive\r\n\r\n";
     client.writable = true;
+	client.headers_str.done = false;
 }
 
 size_t  hex_to_dec(std::string hex_str) {
@@ -193,6 +216,7 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
         request.resp_headers += "Server: klinix\r\n";
         request.resp_headers += "Connection: keep-alive\r\n\r\nuploaded";
         client.writable = true;
+		request.file_len = 0;
         request.out_file.close();
     }
 }
@@ -200,36 +224,36 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
 void	POST_method(client_info& client, fd_set *read_fds)
 {
     Request& request = client.request;
-
-    if (!request.chunked) {
-        if (!request.out_file.is_open()) {
-            request.out_file.open("im.mp4");
-            request.cont_len = request.get_content_length();
-            std::cerr << "content-length: " << request.cont_len << std::endl;
-            request.recved_bytes = 0;
-            size_t f = client.headers_str.str.find("\r\n\r\n");
-            std::string body = client.headers_str.str.substr(f + 4);
-            request.out_file.write(body.c_str(), body.length());
-            request.recved_bytes += body.length();
-        } else if (request.recved_bytes != request.cont_len) {
-            char buff[1024];
-            int r = recv(client.sock, buff, 1024, 0);
-            request.out_file.write(buff, r);
-            request.recved_bytes += r;
-        }
-        if (request.recved_bytes == request.cont_len) {
-            request.resp_headers += (request.version + " 201 Created\r\n");
-            request.resp_headers += ("Content-Type: text/plain\r\n");
-            request.resp_headers += ("Content-Length: 8\r\n");
-            request.resp_headers += "Server: klinix\r\n";
-            request.resp_headers += "Connection: keep-alive\r\n\r\nuploaded";
-            client.writable = true;
-            request.out_file.close();
-        }
-    }
-    else {
-        handle_chunked(client, read_fds);
-    }
+	if (request.location.yes_no.upload_path) {
+		if (!request.chunked) {
+			if (!request.out_file.is_open()) {
+				std::string upload_file = request.location.upload_path + "/b";
+				request.out_file.open(upload_file.c_str());
+				request.cont_len = request.get_content_length();
+				std::cerr << "content-length: " << request.cont_len << std::endl;
+				request.recved_bytes = 0;
+				request.out_file.write(request.body.c_str(), request.body_len);
+				request.recved_bytes += request.body_len;
+			} else if (request.recved_bytes != request.cont_len) {
+				char buff[1024];
+				int r = recv(client.sock, buff, 1024, 0);
+				request.out_file.write(buff, r);
+				request.recved_bytes += r;
+			}
+			if (request.recved_bytes == request.cont_len) {
+				request.resp_headers += (request.version + " 201 Created\r\n");
+				request.resp_headers += ("Content-Type: text/plain\r\n");
+				request.resp_headers += ("Content-Length: 8\r\n");
+				request.resp_headers += "Server: klinix\r\n";
+				request.resp_headers += "Connection: keep-alive\r\n\r\nuploaded";
+				client.writable = true;
+				request.file_len = 0;
+				request.out_file.close();
+			}
+		} else {
+			handle_chunked(client, read_fds);
+		}
+	}
 }
 
 void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds)
@@ -237,12 +261,7 @@ void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set
     for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
         client_info &client = *it;
         if (FD_ISSET(client.sock, write_fds)) {
-            if (client.request.method == GET)
-                GET_response(client);
-            if (client.request.method == POST) {
-                send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
-                client.writable = false;
-            }
+			send_response(client);
         }
         else if (client.headers_str.done) {
             if (client.request.method == GET)

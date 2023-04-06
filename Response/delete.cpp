@@ -5,12 +5,10 @@
 bool isAccessible(const std::string& path)
 {
     int result = access(path.c_str(), W_OK);
-    if (result == 0) {
+    if (result == 0)
         return true;
-    }
-    else {
+    else
         return false;
-    }
 }
 
 bool isAccessibleDir(const std::string& path)
@@ -24,9 +22,6 @@ bool isAccessibleDir(const std::string& path)
     }
 
     DIR* dir = opendir(path.c_str());
-    if (dir == NULL) {
-        return false;
-    }
     struct dirent* entry;
     while ((entry = readdir(dir)) != NULL) {
         std::string entryPath = path + "/" + entry->d_name;
@@ -80,9 +75,15 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
     std::string directory = request.path;
     std::stringstream ss;
     ss << "<html>\n"
-       << "<head><title>Index of " << request.url << "</title></head>\n"
+       << "<head>\n"
+	   << "<title>Index of " << request.uri << "</title>\n"
+	   << "<style>\n"
+	   << "table, th, td {\n"
+	   << "border: 1px solid black;}\n"
+	   << "</style>\n"
+	   << "</head>\n"
        << "<body>\n"
-       << "<h1>Index of " << request.url << "</h1>\n"
+       << "<h1>Index of " << request.uri << "</h1>\n"
        << "<table>\n"
        << "<tr><th>  Name  </th><th>  Last Modified  </th><th>  Size  </th></tr>\n";
 
@@ -93,8 +94,8 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
         while ((entry = readdir(dir)) != NULL)
         {
             std::string name(entry->d_name);
-            if (name != "." && name != "..")
-            {
+//            if (name != "." && name != "..")
+//            {
                 std::string path = directory + "/" + name;
 
                 struct stat file_stat;
@@ -109,8 +110,9 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
                         size_ss << file_stat.st_size;
                         size = size_ss.str();
                     }
-                    ss << "<tr><td><a href=\"" << name << "\">" << name << "</a></td><td>" << last_modified << "</td><td>" << size << "</td></tr>\n";
-                }
+                    ss << "<tr><td><a href=\"" << name << "\">" << name << "</a></td><td>" <<
+						last_modified << "</td><td>" << size << "</td></tr>\n";
+//                }
             }
         }
         closedir(dir);
@@ -123,7 +125,7 @@ std::string auto_index(Request& request) /// TODO print just the path requested 
     std::string response = "HTTP/1.1 200 OK\r\n";
     response += "Content-Type: text/html\r\n";
     response += "Content-Length: " + long_to_string(ss.str().size()) + "\r\n";
-    response += "Connection: close\r\n";
+    response += "Connection: keep-alive\r\n";
     response += "\r\n";
     response += ss.str();
 

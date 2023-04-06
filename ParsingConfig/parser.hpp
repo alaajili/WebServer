@@ -35,6 +35,7 @@ struct bool_location {
     bool autoindex;
     bool index;
     bool path;
+	bool upload_path;
 };
 
 class Location
@@ -45,6 +46,7 @@ public:
     std::string                 root;
     int                         autoindex;
     std::string                 index;
+	std::string                 upload_path;
 
     Location();
 };
@@ -57,7 +59,6 @@ public :
     std::string                         host;
     std::string                         server_name;
     std::map<int, std::string>          error_pages;
-    std::string                         upload_path;
     std::map<std::string, std::string>  cgi;
     std::map<std::string, Location>     location;
 
