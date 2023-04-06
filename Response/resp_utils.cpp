@@ -2,6 +2,8 @@
 // Created by Abderrahmane Laajili on 4/6/23.
 //
 
+#include "response.hpp"
+
 std::string error_404()
 {
 	return "HTTP/1.1 404 Not Found\r\n"
