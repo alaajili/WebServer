@@ -52,9 +52,16 @@ Location    take_location(Holder &holder)
 			loc.yes_no.upload_path = true;
 			loc.upload_path = holder.take_upload_path();
 		}
+		else if (id == "cgi")
+		{
+			loc.yes_no.cgi = true;
+			holder.take_cgi();
+		}
         else
             print_error("error in location");
     }
+	if (loc.yes_no.cgi)
+		loc.cgi = holder.tmp;
     holder.advance();
     return (loc);
 }
@@ -85,11 +92,6 @@ Server  parse_data(Holder& holder)
             server.yes_or_no.error_pages = true;
             server.error_pages = holder.take_error_pages();
         }
-        else if (id == "cgi")
-        {
-            server.yes_or_no.cgi = true;
-            holder.take_cgi();
-        }
         else if (id == "name")
         {
             server.yes_or_no.server_name = true;
@@ -109,7 +111,5 @@ Server  parse_data(Holder& holder)
     }
     if (server.yes_or_no.locations)
         server.location = holder.location;
-    if (server.yes_or_no.cgi)
-        server.cgi = holder.tmp;
     return server;
 }

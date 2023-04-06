@@ -9,7 +9,6 @@ Server::Server()
     yes_or_no.port = false;
     yes_or_no.host = false;
     yes_or_no.error_pages = false;
-    yes_or_no.cgi = false;
     yes_or_no.server_name = false;
     yes_or_no.locations = false;
 }
@@ -22,4 +21,5 @@ Location::Location()
     yes_no.index = false;
     yes_no.path = false;
 	yes_no.upload_path = false;
+	yes_no.cgi = false;
 }
