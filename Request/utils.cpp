@@ -19,16 +19,24 @@ Method	get_method(std::string str)
 	return method;
 }
 
-std::string	get_path(std::string str)
+std::string	get_path(std::string str, Request &request)
 {
 	std::string	path;
 	size_t		i;
 
 	i = str.find('/');
-	while (str[i] != ' ') {
+	while (i != str.length() && str[i] != ' ' && str[i] != '?') {
 		path += str[i];
 		i++;
 	}
+    if (i != str.length() && str[i] == '?')
+        i++;
+    while (i != str.length() && str[i] != ' ') {
+        request.query += str[i];
+        i++;
+    }
+    std::cerr << "path: " << path << std::endl;
+    std::cerr << "query: " << request.query << std::endl;
 	return path;
 }
 
@@ -78,8 +86,8 @@ std::string	get_header_value(std::string str)
 void    get_headers(std::vector<std::string> req, Request& request)
 {
 	request.method = get_method(req[0]);
-	request.path = get_path(req[0]);
-	request.version = get_version(req[0], request.path.length());
+	request.path = get_path(req[0], request);
+	request.version = get_version(req[0], request.path.length()+request.query.length() );
 	for (size_t i = 1; i < req.size(); i++)
 	{
         std::string name, value;

@@ -4,6 +4,27 @@
 
 #include "response.hpp"
 
+std::string	get_file_extension(std::string path) {
+	std::string extension;
+
+	size_t f = path.find_last_of('.');
+	if (f == std::string::npos)
+		return "";
+	for (size_t i = f; i < path.size(); i++) {
+		extension += path[i];
+	}
+	return extension;
+}
+
+void	generate_headers(Request &request) {
+	request.resp_headers = (request.version + " 200 OK\r\n");
+	request.resp_headers += ("Content-Type: " + get_content_type(request.path) + "\r\n");
+	request.file_len = get_file_len(request.path);
+	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
+	request.resp_headers += "Server: klinix\r\n";
+	request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
+}
+
 void    GET_method(client_info& client)
 {
 	Request& request = client.request;
@@ -33,23 +54,22 @@ void    GET_method(client_info& client)
 			return ;
 		}
 	}
-	// if is a file try to open it
-	request.file.open(request.path.c_str());
-	// check if not open
-	if (!request.file.is_open()) {
-		std::cerr << "\33[1;31m(FILE NOT FOUND) | PATH ERROR : " << request.path << "\033[0m" << std::endl;
-		request.resp_headers = error_404();
-		client.writable = true;
-		request.file_len = 0;
-		return ;
+	std::string ext = get_file_extension(request.path);
+	if (ext == ".php" || ext == ".py") {
+		//TODO: handle cgi
+
 	}
-	request.resp_headers = "";
-	request.resp_headers += (request.version + " 200 OK\r\n");
-	request.resp_headers += ("Content-Type: " + get_content_type(request.path) + "\r\n");
-	request.file_len = get_file_len(request.path);
-	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
-	request.resp_headers += "Server: klinix\r\n";
-	request.resp_headers += "Connection: keep-alive\r\n\r\n";
-	client.writable = true;
-	client.headers_str.done = false;
+	else {
+		request.file.open(request.path.c_str());
+		// check if not open
+		if (!request.file.is_open()) {
+			request.resp_headers = error_404();
+			client.writable = true;
+			request.file_len = 0;
+			return;
+		}
+		generate_headers(request);
+		client.writable = true;
+		client.headers_str.done = false;
+	}
 }
