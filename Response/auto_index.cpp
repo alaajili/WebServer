@@ -1,76 +1,10 @@
+//
+// Created by ANASS EL BACHA
+//
+
 #include "response.hpp"
 
-
-
-bool isAccessible(const std::string& path)
-{
-    int result = access(path.c_str(), W_OK);
-    if (result == 0)
-        return true;
-    else
-        return false;
-}
-
-bool isAccessibleDir(const std::string& path)
-{
-    if (!is_directory(path))
-    {
-        if (!isAccessible(path))
-            return false;
-        else
-            return true;
-    }
-
-    DIR* dir = opendir(path.c_str());
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        std::string entryPath = path + "/" + entry->d_name;
-
-        if (entry->d_type == DT_DIR) {
-            if (entry->d_name[0] != '.') {
-                if (!isAccessibleDir(entryPath) && access(entryPath.c_str(), X_OK)) {
-                    closedir(dir);
-                    return false;
-                }
-            }
-        }
-        else {
-            // check file
-            if (!isAccessible(entryPath)) {
-                closedir(dir);
-                return false;
-            }
-        }
-    }
-    closedir(dir);
-    return true;
-}
-
-// std::string delete_method(Request &request) {
-    
-//     std::string file_path = request.path;
-//     std::ostringstream oss;
-
-//     std::ifstream file(file_path.c_str(), std::ios::binary);
-//     if (!file.good()) {
-//         oss << "HTTP/1.1 404 Not Found\r\n"
-//                "Server: klinix\r\n";
-//     }
-
-//     file.close();
-
-//     if (remove(file_path.c_str()) != 0) {
-//         oss << "HTTP/1.1 500 Internal Server Error\r\n"
-//                "Server: klinix\r\n";
-//     }
-//     oss << "HTTP/1.1 204 No Content\r\n"
-//            "Server: klinix\r\n"
-//            "Connection: close\r\n\r\n";
-
-//     return oss.str();
-// }
-
-std::string auto_index(Request& request) /// TODO print just the path requested not the full path (root + path)
+std::string auto_index(Request& request)
 {
     std::string directory = request.path;
     std::stringstream ss;
