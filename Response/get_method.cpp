@@ -9,6 +9,13 @@ void    GET_method(client_info& client)
 	Request& request = client.request;
 
 
+	if (client.request.method == DELETE) // hendle delete method response like auto_index
+	{
+		request.resp_headers = delete_method(client);
+		request.file_len = 0;
+		client.writable = true;
+		return;
+	}
 	std::cerr << "PATH: " << request.path << std::endl;
 	// check if is a directory
 	if (is_directory(request.path)) {

@@ -4,6 +4,14 @@
 
 #include "response.hpp"
 
+std::string error_500()
+{
+	return "HTTP/1.1 500 Internal Server Error\r\n"
+               "Server: klinix\r\n"
+			   "Content-Length: 34\r\n\r\n"
+		   		"<h1>500 Internal Server Error</h1>";
+}
+
 std::string error_404()
 {
 	return "HTTP/1.1 404 Not Found\r\n"
@@ -17,6 +25,12 @@ std::string error_403() {
 		   "Server: klinix\r\n"
 		   "Content-Length: 22\r\n\r\n"
 		   "<h1>403 Forbidden</h1>";
+}
+std::string No_Content_204() {
+	return "HTTP/1.1 204 No Content\r\n"
+                "Server: klinix\r\n"
+				"Content-Length: 23\r\n\r\n"
+		   		"<h1>204 No Content</h1>";
 }
 
 void	moved_permanently(Request &request) {
