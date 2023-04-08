@@ -19,6 +19,7 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
 	size_t r;
 	(void) read_fds;
 
+
 	if (!request.out_file.is_open()) {
 		request.out_file.open("b.mp4");
 		request.size_bool = false;
@@ -104,4 +105,9 @@ void	POST_method(client_info& client, fd_set *read_fds)
 			handle_chunked(client, read_fds);
 		}
 	}
+    else {
+        if (directory)
+            += index;
+
+    }
 }

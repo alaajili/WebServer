@@ -62,12 +62,12 @@ void    GET_method(client_info& client)
 		}
 	}
 	std::string ext = get_file_extension(request.path);
-	if (ext == ".php" || ext == ".py") {
-		//TODO: handle cgi
-
-	}
-	else {
-		request.file.open(request.path.c_str());
+    std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
+    if (f != request.location.cgi.end()) {
+        // cgi
+    }
+ 	else {
+        request.file.open(request.path.c_str());
 		// check if not open
 		if (!request.file.is_open()) {
 			request.resp_headers = error_404();

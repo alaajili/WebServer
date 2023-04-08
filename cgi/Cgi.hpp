@@ -313,7 +313,7 @@ void cgi::wait_for_tempfile_file()
     {
         std::string t;
         std::fstream tempfile;
-        tempfile.open("cgi/tempfile");
+        tempfile.open("cgi/temp_file");
         if(getline(tempfile, t))
         {
             break;
@@ -329,7 +329,7 @@ void cgi::wait_for_body_file()
     {
     
         std::fstream tempfile;
-        tempfile.open("cgi/tempbody");
+        tempfile.open("cgi/temp_body");
         if(tempfile.good())
         {
             break;
@@ -371,7 +371,7 @@ void cgi::remove_header()
     std::string c_type;
 
     wait_for_tempfile_file();
-    infile.open("cgi/tempfile", std::ios::in);
+    infile.open("cgi/temp_file", std::ios::in);
     if (ext == 1)
     {
         while (getline(infile, str))
@@ -427,28 +427,28 @@ void cgi::exec()
     {
         req.body = req.body.substr(2);
         body_existense = 1;
-        in_fd = open("cgi/tempbody", O_CREAT | O_RDWR | O_TRUNC, 0666);
+        in_fd = open("cgi/temp_body", O_CREAT | O_RDWR | O_TRUNC, 0666);
         wait_for_body_file();
         write(in_fd, req.body.c_str(), req.body.size());
         lseek(in_fd, 0, SEEK_SET);
     }
     else
         body_existense = 0;
-    tmp_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    tmp_fd = open("cgi/temp_file", O_CREAT | O_WRONLY | O_TRUNC, 0666);
     fill_env();
     exec_cgi(args, env, in_fd);
     wait_cgi();
     remove_header();
-    remove("cgi/tempfile");
+    remove("cgi/temp_file");
     if (body_existense == 1)
-        remove("cgi/tempbody");
+        remove("cgi/temp_body");
     int i = 0;
 	while (env[i]){
 		delete env[i];
 		i++;
 	}
 	i = 0;
-	while (args[i]){
+	while (args[i]) {
 		delete args[i];
 		i++;
 	}
