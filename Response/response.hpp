@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <dirent.h>
 #include <map>
+#include "../cgi/Cgi.hpp"
 
-class cgi;
 
 
 std::string							long_to_string(size_t num);
@@ -22,6 +22,8 @@ std::string 						error_403();
 std::string 						error_404();
 std::string                         error_405();
 std::string                         error_500();
+std::string                         error_501();
+std::string                         error_400();
 std::string                         No_Content_204();
 void								moved_permanently(Request &request);
 std::string							long_to_string(size_t num);

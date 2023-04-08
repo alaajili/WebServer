@@ -13,6 +13,8 @@ std::map<int, std::string> init_map_status() {
 	m[500] = "500 Internal Server Error";
 	m[204] = "204 No Content";
 	m[405] = "405 Method Not Allowed";
+	m[400] = "400 Bad Request";
+	m[501] = "501 Not Implemented";
 	return m;
 }
 
@@ -53,6 +55,19 @@ std::string error_405() {
 		   "<h1>405 Method Not Allowed</h1>";
 }
 
+std::string error_400() {
+	return "HTTP/1.1 400 Bad Request\r\n"
+		   "Server: klinix\r\n"
+		   "Content-Length: 24\r\n\r\n"
+		   "<h1>400 Bad Request</h1>";
+}
+
+std::string error_501() {
+	return "HTTP/1.1 501 Not Implemented\r\n"
+		   "Server: klinix\r\n"
+		   "Content-Length: 28\r\n\r\n"
+		   "<h1>501 Not Implemented</h1>";
+}
 
 void	moved_permanently(Request &request) {
 	request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";

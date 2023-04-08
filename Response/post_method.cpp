@@ -76,6 +76,7 @@ void	read_body_for_cgi(client_info& client) {
 	Request &request = client.request;
 
 	if (!request.out_file.is_open()) {
+
 		request.out_file.open("cgi/tmp_body");
 		request.cont_len = atoi(request.headers["Content-Length"].c_str());
 		request.recved_bytes = 0;
@@ -88,6 +89,7 @@ void	read_body_for_cgi(client_info& client) {
 		request.recved_bytes += r;
 	}
 	if (request.recved_bytes == request.cont_len) {
+
 		request.ready_cgi = true;
 		request.out_file.close();
 	}
@@ -136,12 +138,22 @@ void	POST_method(client_info& client, fd_set *read_fds)
 				request.path += request.location.index;
 			}
 		}
-		if (request.ready_cgi)
+		if (!request.ready_cgi) {
 			read_body_for_cgi(client);
-		else {
-			// cgi cg(request.path, request);
-			// cg.ex
 		}
-
+		if (request.ready_cgi) {
+			cgi cg(request.path, request);
+			cg.exec(request);
+			std::string out_path = cg.outfile_path();
+			request.file.open("/Users/alaajili/Desktop/WebServ/cgi/tempfile");
+			request.resp_headers =  "HTTP/1.1 200 OK\r\n";
+			request.resp_headers += ("Content-Type: text/plain\r\n");
+			request.file_len = get_file_len("/Users/alaajili/Desktop/WebServ/cgi/tempfile");
+			std::cerr << "file len => " << request.file_len << std::endl;
+			request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
+			request.resp_headers += "Server: klinix\r\n";
+			request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
+			client.writable = true;
+		}
     }
 }

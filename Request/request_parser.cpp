@@ -19,10 +19,44 @@ std::vector<std::string>	split_request_str(std::string request_str)
 	return req;
 }
 
-void    check_headers(Request& request) {
+void    check_headers(client_info& client) {
+	Request &request = client.request;
     request.chunked = false;
-    if ( request.headers["Transfer-Encoding"] == "chunked" )
+	if (request.method == NONE) {
+		request.resp_headers = error_501();
+		request.file_len = 0;
+		client.writable = true;
+		client.headers_str.done = false;
+		return ;
+	}
+
+	std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
+    if (it != request.headers.end() && request.headers["Transfer-Encoding"] == "chunked")
 		request.chunked = true;
+	else if (it != request.headers.end() && request.headers["Transfer-Encoding"] != "chunked") {
+		request.resp_headers = error_501();
+		request.file_len = 0;
+		client.writable = true;
+		client.headers_str.done = false;
+		return ;
+	}
+	std::map<std::string, std::string>::iterator it2 = request.headers.find("Content-Length");
+	if (request.method == POST && it == request.headers.end() && it2 == request.headers.end()) {
+		request.resp_headers = error_400();
+		request.file_len = 0;
+		client.writable = true;
+		client.headers_str.done = false;
+		return ;
+	}
+	it = request.headers.find("Host");
+	if (it == request.headers.end()) {
+		request.resp_headers = error_400();
+		request.file_len = 0;
+		client.writable = true;
+		client.headers_str.done = false;
+		return ;
+	}
+
 }
 
 void	parse_requests(std::list<client_info>& clients) {
@@ -33,7 +67,7 @@ void	parse_requests(std::list<client_info>& clients) {
             req = split_request_str(req_str);
             get_headers(req, it->request);
             it->headers_str.parsed = true;
-            check_headers(it->request);
+            check_headers(*it);
         }
     }
 }

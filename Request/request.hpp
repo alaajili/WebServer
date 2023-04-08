@@ -23,7 +23,6 @@
 #include <iterator>
 
 
-
 class Server;
 
 enum Method {GET, POST, DELETE, NONE};
@@ -97,5 +96,8 @@ bool    is_directory(std::string path);
 /*--------------*/
 void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds);
 /*-------------*/
+
+std::string                         error_501();
+std::string                         error_400();
 
 #endif //WEBSERVER_REQUEST_HPP
