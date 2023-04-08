@@ -44,12 +44,15 @@ void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set
 			send_response(client);
         }
         else if (client.headers_str.done) {
-            if (client.request.method == GET || client.request.method == DELETE) {    // hendle delete method response like auto_index
+            if (client.request.method == GET) {    // hendle delete method response like auto_index
 				GET_method(client);
 			}
             if (client.request.method == POST) {
 				POST_method(client, read_fds);
 			}
+            if (client.request.method == DELETE){
+                delete_method(client);
+            }
         }
     }
 }

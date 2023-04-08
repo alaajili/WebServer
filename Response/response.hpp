@@ -14,7 +14,8 @@ std::string							long_to_string(size_t num);
 std::string							auto_index(Request& request);
 void    							GET_method(client_info& client);
 void								POST_method(client_info& client, fd_set *read_fds);
-std::string                         delete_method(client_info& client);
+void                                delete_method(client_info& client);
+std::map<int, std::string>          init_map_status();
 std::string 						error_404();
 std::string 						error_403();
 std::string                         error_500();
@@ -24,5 +25,7 @@ std::string							long_to_string(size_t num);
 std::map<std::string, std::string>	init_map();
 std::string							get_content_type(std::string &file_path);
 size_t								get_file_len(std::string path);
+bool                                check_error_pages(Request& request,int status);
+void                                generate_headers(Request &request, int status);
 
 #endif //WEBSERV_RESPONSE_H

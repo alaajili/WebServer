@@ -77,39 +77,74 @@ bool removeDirectory(const std::string& path) {
     }
 }
 
-std::string delete_method(client_info& client)
+void    delete_method(client_info& client)
 {
-	Request& request = client.request;
-    std::string file_path = request.path;
-    std::ostringstream oss;
+	Request&            request = client.request;
+    std::string         file_path = request.path;
+    int                 default_status;
 
     if (is_directory(file_path))
     {
         if (isAccessibleDir(file_path) == true)
         {
             removeDirectory(file_path);  
-            oss << No_Content_204();
+            request.resp_headers = No_Content_204();
+			client.writable = true;
+			request.file_len = 0;
+			return;
         }
-        else
-            oss << error_500();
-    }
-    else
-    {
-        std::ifstream file(file_path.c_str());
-        if (!file.good())
-            oss << error_404();
-        else
-        {
-            if (isAccessible(file_path) == true)
-            {
-                removeFile(file_path);
-                oss << No_Content_204();
+        else{
+            if (check_error_pages(request,500)){
+				request.path = request.serv_block.error_pages[500];
+				default_status = 500;
+			}
+            else{
+                request.resp_headers = error_500();
+			    client.writable = true;
+			    request.file_len = 0;
+			    return;
             }
-            else
-                oss << error_500();
+        }
+    }
+    else{
+        std::ifstream file(file_path.c_str());
+        if (!file.good() && isAccessible(file_path) == true){
+			if (check_error_pages(request,404)){
+				request.path = request.serv_block.error_pages[404];
+				default_status = 404;
+			}
+            else{
+				request.resp_headers = error_404();
+				client.writable = true;
+				request.file_len = 0;
+				return;
+            }
+        }
+        else{
+            if (isAccessible(file_path) == true){
+                removeFile(file_path);
+                request.resp_headers = No_Content_204();
+                client.writable = true;
+                request.file_len = 0;
+                return;
+            }
+            else{
+                if (check_error_pages(request,500)){
+			    	request.path = request.serv_block.error_pages[500];
+			    	default_status = 500;
+			    }
+                else{
+                    request.resp_headers = error_500();
+			        client.writable = true;
+			        request.file_len = 0;
+			        return;
+                }
+            }
         }
         file.close();
     }
-    return oss.str();
+	generate_headers(request,default_status);
+	client.writable = true;
+	client.headers_str.done = false;
 }
 
