@@ -139,8 +139,8 @@ void	POST_method(client_info& client, fd_set *read_fds)
 		if (request.ready_cgi)
 			read_body_for_cgi(client);
 		else {
-			cgi cg(request.path, request);
-			cg.ex
+			// cgi cg(request.path, request);
+			// cg.ex
 		}
 
     }
