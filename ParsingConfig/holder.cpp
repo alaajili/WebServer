@@ -113,14 +113,14 @@ size_t Holder::take_port()
 
     if(check_is_digit(tmp))
     {
-        std::cout << "you can't insert a non digit in you port" << std::endl;
+        std::cout << "You can't insert a non digit in you port" << std::endl;
         exit(1);
     }
     for(int i = 0; tmp[i] ; i++)
     {
         if(!isdigit(tmp[i]))
         {
-            std::cout<<"you can't insert a non digit in you port" << std::endl;
+            std::cout<<"You can't insert a non digit in you port" << std::endl;
             exit(1);
         }
     }
@@ -142,12 +142,14 @@ std::map<int, std::string>  pick_error_pages(std::vector<std::string> data)
     size_t                      counter;
 
     if((data.size() % 2))
-        print_error("you need to insert a valid error pages");
+        print_error("You need to insert a valid error pages !!");
     for(counter = 0; counter < data.size(); counter++)
     {
         if(check_is_digit(data[counter]))
-            print_error("you need to insert a valid error pages");
+            print_error("You need to insert a valid error pages !!");
         int number = atoi(data[counter].c_str());
+        if(!(number > 100 && number < 600))
+            print_error("Status code not valide !!");
         counter++;
         error_pages[number] = data[counter];
     }
@@ -181,7 +183,7 @@ void    Holder::take_cgi()
     skip_spaces();
     std::vector<std::string> data = split_with_char(take_id_(), ' ');
     if(data.size() != 2 || (data[1] != ".php" && data[1] != ".py"))
-        print_error("CGI invalid");
+        print_error("CGI invalid !!");
     tmp[data[1]] = data[0];
     skip_all();
 }
@@ -194,12 +196,12 @@ std::string Holder::take_loc_path()
     skip_all();
 
     if(am_here != '{')
-        print_error("location must be followed by {");
+        print_error("Location must be followed by {");
     second_index = index;
     while(server[second_index] != '}')
         second_index++;
     if(!server[second_index])
-        print_error("location must be closed with }");
+        print_error("Location must be closed with }");
     advance();
     skip_all();
     return path;
@@ -212,11 +214,11 @@ std::vector<std::string> Holder::pick_methods()
     std::string tmp = take_id_();
     std::vector<std::string> methods = split_with_char(tmp, ' ');
     if(methods.size() > (size_t)4)
-        print_error("you can enter only 3 methods");
+        print_error("You can enter only 3 methods !!!");
     for(size_t counter = 0; counter < methods.size(); counter++)
     {
         if(methods[counter] != "POST" && methods[counter] != "GET" && methods[counter] != "DELETE")
-            print_error("methods not allowed");
+            print_error("Methods not allowed");
     }
     skip_all();
     return methods;
@@ -270,7 +272,7 @@ int Holder::pick_autoindex()
     else if (autoindex == "off")
         return_value = OFF;
     else
-        print_error("use ON or OFF only to define your autoindex");
+        print_error("Use ON or OFF only to define your autoindex");
     skip_all();
     return return_value;
 }

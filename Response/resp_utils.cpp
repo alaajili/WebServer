@@ -4,6 +4,17 @@
 
 #include "response.hpp"
 
+std::map<int, std::string> init_map_status() {
+	std::map<int, std::string> m;
+
+	m[200] = "200 OK";
+	m[404] = "404 Not Found";
+	m[403] = "403 Forbidden";
+	m[500] = "500 Internal Server Error";
+	m[204] = "204 No Content";
+	return m;
+}
+
 std::string error_500()
 {
 	return "HTTP/1.1 500 Internal Server Error\r\n"

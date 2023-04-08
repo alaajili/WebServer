@@ -4,6 +4,17 @@
 
 #include "response.hpp"
 
+bool	check_error_pages(Request& request,int status)
+{
+	struct stat file_stat;
+	if (request.serv_block.error_pages.find(status) != request.serv_block.error_pages.end()
+					&& !stat(request.serv_block.error_pages[status].c_str(), &file_stat) && S_ISREG(file_stat.st_mode))
+	{
+		return true;
+	}
+	return false;
+}
+
 std::string	get_file_extension(std::string path) {
 	std::string extension;
 
@@ -16,8 +27,10 @@ std::string	get_file_extension(std::string path) {
 	return extension;
 }
 
-void	generate_headers(Request &request) {
-	request.resp_headers = (request.version + " 200 OK\r\n");
+void	generate_headers(Request &request, int status)
+{
+	std::map<int,std::string> m = init_map_status();
+	request.resp_headers = (request.version +  " " + m[status] + "\r\n");
 	request.resp_headers += ("Content-Type: " + get_content_type(request.path) + "\r\n");
 	request.file_len = get_file_len(request.path);
 	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
@@ -28,16 +41,17 @@ void	generate_headers(Request &request) {
 void    GET_method(client_info& client)
 {
 	Request& request = client.request;
+	int default_status = 200;
 
 
-	if (client.request.method == DELETE) // hendle delete method response like auto_index
-	{
-		request.resp_headers = delete_method(client);
-		request.file_len = 0;
-		client.writable = true;
-		return;
-	}
-	std::cerr << "PATH: " << request.path << std::endl;
+	// if (client.request.method == DELETE)
+	// {
+	// 	request.resp_headers = delete_method(client);
+	// 	request.file_len = 0;
+	// 	client.writable = true;
+	// 	return;
+	// }
+	// std::cerr << "PATH: " << request.path << std::endl;
 	// check if is a directory
 	if (is_directory(request.path)) {
 		if (request.uri[request.uri.length() - 1] != '/') {
@@ -55,10 +69,17 @@ void    GET_method(client_info& client)
 			return;
 		}
 		else {
-			request.resp_headers = error_403();
-			client.writable = true;
-			request.file_len = 0;
-			return ;
+			if (check_error_pages(request,403))
+			{
+				request.path = request.serv_block.error_pages[403];
+				default_status = 403;
+			}
+			else{
+				request.resp_headers = error_403();
+				client.writable = true;
+				request.file_len = 0;
+				return ;
+			}
 		}
 	}
 	std::string ext = get_file_extension(request.path);
@@ -66,16 +87,22 @@ void    GET_method(client_info& client)
     if (f != request.location.cgi.end()) {
         // cgi
     }
- 	else {
-        request.file.open(request.path.c_str());
-		// check if not open
+	else {
+		request.file.open(request.path.c_str());
 		if (!request.file.is_open()) {
-			request.resp_headers = error_404();
-			client.writable = true;
-			request.file_len = 0;
-			return;
+			if (check_error_pages(request,404))
+			{
+				request.path = request.serv_block.error_pages[404];
+				default_status = 404;
+			}
+			else{
+				request.resp_headers = error_404();
+				client.writable = true;
+				request.file_len = 0;
+				return;
+			}
 		}
-		generate_headers(request);
+		generate_headers(request,default_status);
 		client.writable = true;
 		client.headers_str.done = false;
 	}
