@@ -72,6 +72,27 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
 	}
 }
 
+void	read_body_for_cgi(client_info& client) {
+	Request &request = client.request;
+
+	if (!request.out_file.is_open()) {
+		request.out_file.open("cgi/tmp_body");
+		request.cont_len = atoi(request.headers["Content-Length"].c_str());
+		request.recved_bytes = 0;
+		request.out_file.write(request.body.c_str(), request.body_len);
+		request.recved_bytes += request.body_len;
+	} else if (request.recved_bytes != request.cont_len) {
+		char buff[1024];
+		int r = recv(client.sock, buff, 1024, 0);
+		request.out_file.write(buff, r);
+		request.recved_bytes += r;
+	}
+	if (request.recved_bytes == request.cont_len) {
+		request.ready_cgi = true;
+		request.out_file.close();
+	}
+}
+
 void	POST_method(client_info& client, fd_set *read_fds)
 {
 	Request& request = client.request;
@@ -114,6 +135,12 @@ void	POST_method(client_info& client, fd_set *read_fds)
 			else {
 				request.path += request.location.index;
 			}
+		}
+		if (request.ready_cgi)
+			read_body_for_cgi(client);
+		else {
+			cgi cg(request.path, request);
+			cg.ex
 		}
 
     }

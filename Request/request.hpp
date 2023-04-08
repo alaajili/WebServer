@@ -63,6 +63,8 @@ struct Request {
     bool                    size_bool;
 
 
+	bool ready_cgi;
+
     // server block and location
     Server      serv_block;
     Location    location;

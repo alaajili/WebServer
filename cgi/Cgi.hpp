@@ -12,6 +12,27 @@
 #include "../Request/request.hpp"
 class cgi
 {
+
+private:
+    int body_existence;
+    std::string path;
+    int cgi_pid;
+    int in_fd;
+    std::string methode;
+    int pid_status;
+    char **env;
+    char **args;
+    std::string out_path;
+    int tmp_fd;
+    std::string py;
+    std::string query;
+    std::string content_type;
+    std::string php;
+    std::string outname;
+    int ext;
+    std::string port;
+    // Request req;
+
 public:
     enum
     {
@@ -20,43 +41,22 @@ public:
         ERROR = -1
     };
 
-private:
-    std::string methode;
-    std::string path;
-    int body_existense;
-    int cgi_pid;
-    int pid_status;
-    char **env;
-    char **args;
-    int in_fd;
-    int tmp_fd;
-    std::string out_path;
-    std::string php;
-    std::string py;
-    std::string outname;
-    std::string content_type;
-    int ext;
-    Request req;
-    std::string port;
-    std::string query;
-
-public:
-    cgi(std::string p, Request request);
+    cgi(std::string p, Request &request);
     ~cgi();
+    void exec_cgi(char **args, char **env, int fd, Request &req);
     int get_cgi_pid();
-    void fill_env();
-    void exec_cgi(char **args, char **env, int fd);
-    void wait_cgi();
-    void exec();
+    void wait_for_cgi();
+    void fill_env(Request &req);
+    void exec(Request &req);
     int check_extension(std::string str);
     void fill_args();
-    std::string random_name();
-    std::string get_outfile_path();
-    void remove_header();
+    std::string rand_file();
+    std::string outfile_path();
+    void deleat_heders();
     void wait_for_tempfile_file();
     void parse_content_type(std::string str);
     std::string get_content_type();
-    int get_extension();
+    int pick_ext();
     void wait_for_body_file();
     class fork_error : public std::exception
     {
@@ -91,16 +91,18 @@ int check_extension2(std::string name)
 
 cgi::cgi(std::string p, Request &request)
 {
-    query = request.query;
+
+    query = request.query; 
     port = "8080";
+
     path = p;
     cgi_pid = -1;
     pid_status = 0;
     php = "cgi/cgi-bin/php-cgi";
     py = "/usr/local/bin/python3";
-    if(req.method == POST)
+    if(request.method == POST)
         methode = "POST";
-    else if (req.method == GET)
+    else if (request.method == GET)
         methode = "GET";
 }
 
@@ -113,19 +115,19 @@ int cgi::get_cgi_pid()
     return (this->cgi_pid);
 }
 
-std::string cgi::random_name()
+std::string cgi::rand_file()
 {
-    char letters[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    int len = 5;
+    char random[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    int lenght = 5;
     srand(time(0));
-    std::string name;
-    name.reserve(len);
-    for (int i = 0; i < len; i++)
-        name += letters[rand() % (sizeof(letters) - 1)];
-    return (name);
+    std::string name_file;
+    name_file.reserve(lenght);
+    for (int i = 0; i < lenght; i++)
+        name_file += random[rand() % (sizeof(random) - 1)];
+    return (name_file);
 }
 
-std::string cgi::get_outfile_path()
+std::string cgi::outfile_path()
 {
     char buff[PATH_MAX];
     getcwd(buff, PATH_MAX);
@@ -135,7 +137,7 @@ std::string cgi::get_outfile_path()
     return (outfile_path);
 }
 
-void cgi::fill_env()
+void cgi::fill_env(Request &req)
 {
     if (req.method == POST)
         env = new char *[13];
@@ -231,7 +233,7 @@ void cgi::fill_env()
         env[11] = NULL;
 }
 
-void cgi::exec_cgi(char **args, char **env, int fd)
+void cgi::exec_cgi(char **args, char **env, int fd, Request &req)
 {
     lseek(tmp_fd, 0, SEEK_SET);
     cgi_pid = fork();
@@ -249,22 +251,18 @@ void cgi::exec_cgi(char **args, char **env, int fd)
     }
 }
 
-void cgi::wait_cgi()
+void cgi::wait_for_cgi()
 {
-    int s;
-    int pid = waitpid(cgi_pid, &s, WNOHANG);
+    int s_;
+    int pid = waitpid(cgi_pid, &s_, WNOHANG);
     if (pid == -1)
         pid_status = ERROR;
     else if (pid != 0)
     {
         if (WIFSIGNALED(pid_status))
-        {
             pid_status = ERROR;
-        }
         else
-        {
             pid_status = DONE;
-        }
     }
     if (pid_status == DONE || pid_status == ERROR)
     {
@@ -355,25 +353,27 @@ std::string cgi::get_content_type()
     return(content_type);
 }
 
-int cgi::get_extension()
+int cgi::pick_ext()
 {
     return(ext);
 }
 
-void cgi::remove_header()
+void cgi::deleat_heders()
 {
-    std::string s;
     std::string str;
+    std::string s;
     std::string f;
-    std::fstream infile;
+    std::fstream in;
     std::ofstream outfile;
     std::string c_type;
 
     wait_for_tempfile_file();
-    infile.open("cgi/temp_file", std::ios::in);
+
+    in.open("cgi/tempfile", std::ios::in);
+
     if (ext == 1)
     {
-        while (getline(infile, str))
+        while (getline(in, str))
         {
             if (str != "\r")
             {
@@ -387,10 +387,10 @@ void cgi::remove_header()
             }
             str.clear();
         }
-        while (getline(infile, str))
+        while (getline(in, str))
         {
             f += str;
-            if (infile.eof())
+            if (in.eof())
                 break;
             f += '\n';
         }
@@ -398,10 +398,10 @@ void cgi::remove_header()
     }
     else if (ext == 2)
     {
-        while (getline(infile, str))
+        while (getline(in, str))
         {
             f += str;
-            if (infile.eof())
+            if (in.eof())
                 break;
             f += '\n';
         }
@@ -409,10 +409,10 @@ void cgi::remove_header()
     }
     outfile.open(outname, std::ios::out);
     outfile << f;
-    infile.close();
+    in.close();
 }
 
-void cgi::exec()
+void cgi::exec(Request &req)
 {
     fill_args();
     try
@@ -420,27 +420,31 @@ void cgi::exec()
         if (access(args[0], F_OK | X_OK) == -1)
             throw(cgi_open_error());
     }
-    catch(...){}
-    outname = "cgi/" + random_name();
+    catch(...){
+    }
+    outname = "cgi/" + rand_file();
     if (!req.body.empty())
     {
         req.body = req.body.substr(2);
-        body_existense = 1;
-        in_fd = open("cgi/temp_body", O_CREAT | O_RDWR | O_TRUNC, 0666);
+        body_existence = 1;
+        in_fd = open("cgi/tempbody", O_CREAT | O_RDWR | O_TRUNC, 0666);
+
+
         wait_for_body_file();
         write(in_fd, req.body.c_str(), req.body.size());
         lseek(in_fd, 0, SEEK_SET);
     }
     else
-        body_existense = 0;
-    tmp_fd = open("cgi/temp_file", O_CREAT | O_WRONLY | O_TRUNC, 0666);
-    fill_env();
-    exec_cgi(args, env, in_fd);
-    wait_cgi();
-    remove_header();
-    remove("cgi/temp_file");
-    if (body_existense == 1)
-        remove("cgi/temp_body");
+        body_existence = 0;
+    tmp_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    fill_env(req);
+    exec_cgi(args, env, in_fd,req);
+    wait_for_cgi();
+    deleat_heders();
+    remove("cgi/tempfile");
+    if (body_existence == 1)
+        remove("cgi/tempbody");
+
     int i = 0;
 	while (env[i]){
 		delete env[i];

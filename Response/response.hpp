@@ -9,6 +9,8 @@
 #include <dirent.h>
 #include <map>
 
+class cgi;
+
 
 std::string							long_to_string(size_t num);
 std::string							auto_index(Request& request);
