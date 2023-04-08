@@ -12,6 +12,7 @@ std::map<int, std::string> init_map_status() {
 	m[403] = "403 Forbidden";
 	m[500] = "500 Internal Server Error";
 	m[204] = "204 No Content";
+	m[405] = "405 Method Not Allowed";
 	return m;
 }
 
@@ -37,12 +38,21 @@ std::string error_403() {
 		   "Content-Length: 22\r\n\r\n"
 		   "<h1>403 Forbidden</h1>";
 }
+
 std::string No_Content_204() {
 	return "HTTP/1.1 204 No Content\r\n"
                 "Server: klinix\r\n"
 				"Content-Length: 23\r\n\r\n"
 		   		"<h1>204 No Content</h1>";
 }
+
+std::string error_405() {
+	return "HTTP/1.1 405 Method Not Allowed\r\n"
+		   "Server: klinix\r\n"
+		   "Content-Length: 31\r\n\r\n"
+		   "<h1>405 Method Not Allowed</h1>";
+}
+
 
 void	moved_permanently(Request &request) {
 	request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";
