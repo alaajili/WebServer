@@ -155,6 +155,5 @@ void	POST_method(client_info& client, fd_set *read_fds)
 			request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
 			client.writable = true;
 		}
-
     }
 }
