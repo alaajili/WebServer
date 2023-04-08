@@ -106,8 +106,15 @@ void	POST_method(client_info& client, fd_set *read_fds)
 		}
 	}
     else {
-        if (directory)
-            += index;
+		if (is_directory(request.path)) {
+			if (!request.location.yes_no.index) {
+				// forbidden
+
+			}
+			else {
+				request.path += request.location.index;
+			}
+		}
 
     }
 }

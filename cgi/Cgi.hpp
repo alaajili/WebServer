@@ -91,9 +91,8 @@ int check_extension2(std::string name)
 
 cgi::cgi(std::string p, Request &request)
 {
-    query = request.uri; //pqssi l query string hna a zebi
-    port = "8080"; //passi l port hna a zebi
-    // req = request;
+    query = request.query;
+    port = "8080";
     path = p;
     cgi_pid = -1;
     pid_status = 0;
