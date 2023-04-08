@@ -38,7 +38,17 @@ void	generate_headers(Request &request, int status)
 	request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
 }
 
-void    GET_method(client_info& client)
+void	generate_headers_for_cgi(Request &request, std::string out) {
+	request.resp_headers = "HTTP/1.1 200 OK\r\n";
+	request.resp_headers += ("Content-Type: text/html\r\n");
+	request.file_len = get_file_len(out);
+	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
+	request.resp_headers += "Server: klinix\r\n";
+	request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
+}
+
+
+void	GET_method(client_info&	client)
 {
 	Request& request = client.request;
 	int default_status = 200;
@@ -85,7 +95,13 @@ void    GET_method(client_info& client)
 	std::string ext = get_file_extension(request.path);
     std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
     if (f != request.location.cgi.end()) {
-
+		cgi cg(request.path, request);
+		cg.exec(request);
+		std::string out_path = cg.outfile_path();
+		request.file.open(out_path.c_str());
+		generate_headers_for_cgi(request, out_path);
+		client.writable = true;
+		client.headers_str.done = false;
     }
 	else {
 		request.file.open(request.path.c_str());

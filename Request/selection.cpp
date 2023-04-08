@@ -7,7 +7,7 @@
 std::string get_server_name(const std::string& str) {
     std::string server_name;
 
-    for (size_t i = 0; str[i] != ':'; i++)
+    for (size_t i = 0; i < str.length() && str[i] != ':'; i++)
         server_name += str[i];
 
     return server_name;
@@ -18,7 +18,7 @@ int get_port(const std::string& str) {
     std::string s;
 
     size_t  i = 0;
-    for (; str[i] != ':'; i++);
+    for (; i < str.length() && str[i] != ':'; i++);
     i++;
     for (; i < str.length(); i++) {
         s += str[i];

@@ -354,13 +354,13 @@ void cgi::exec(Request &req)
 	}
 	out_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
 	fill_env(req);
-	for (int i = 0; i < 13; i++) {
-		std::cerr << env[i] << std::endl;
-	}
+//	for (int i = 0; i < 13; i++) {
+//		std::cerr << env[i] << std::endl;
+//	}
 	exec_cgi(args, env, in_fd,req);
 	wait_for_cgi();
 
-	// deleat_heders();
+	 deleat_heders();
 	// remove("cgi/tempfile");
 //	if (req.method == POST)
 //		remove("cgi/tmp_body");
