@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <dirent.h>
 #include <map>
+#include "../cgi/Cgi.hpp"
 
-class cgi;
 
 
 std::string							long_to_string(size_t num);

@@ -25,7 +25,6 @@
 #include <iterator>
 
 
-
 class Server;
 
 enum Method {GET, POST, DELETE, NONE};

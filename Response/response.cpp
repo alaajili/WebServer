@@ -33,9 +33,6 @@ void    send_response(client_info& client)
     }
 }
 
-
-
-
 void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds)
 {
     for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {

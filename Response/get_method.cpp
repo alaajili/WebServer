@@ -74,7 +74,7 @@ void    GET_method(client_info& client)
 				request.path = request.serv_block.error_pages[403];
 				default_status = 403;
 			}
-			else{
+			else {
 				request.resp_headers = error_403();
 				client.writable = true;
 				request.file_len = 0;
@@ -85,7 +85,7 @@ void    GET_method(client_info& client)
 	std::string ext = get_file_extension(request.path);
     std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
     if (f != request.location.cgi.end()) {
-        // cgi
+
     }
 	else {
 		request.file.open(request.path.c_str());
