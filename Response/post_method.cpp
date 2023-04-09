@@ -104,6 +104,7 @@ void	POST_method(client_info& client, fd_set *read_fds)
 				std::string upload_file = request.location.upload_path + "/b";
 				request.out_file.open(upload_file.c_str());
 				request.cont_len = atoi(request.headers["Content-Length"].c_str());
+				if (request.cont_len)
 				std::cerr << "content-length: " << request.cont_len << std::endl;
 				request.recved_bytes = 0;
 				request.out_file.write(request.body.c_str(), request.body_len);
@@ -132,7 +133,6 @@ void	POST_method(client_info& client, fd_set *read_fds)
 		if (is_directory(request.path)) {
 			if (!request.location.yes_no.index) {
 				// forbidden
-
 			}
 			else {
 				request.path += request.location.index;
@@ -145,10 +145,10 @@ void	POST_method(client_info& client, fd_set *read_fds)
 			cgi cg(request.path, request);
 			cg.exec(request);
 			std::string out_path = cg.outfile_path();
-			request.file.open("/Users/alaajili/Desktop/WebServ/cgi/tempfile");
+			request.file.open(out_path.c_str());
 			request.resp_headers =  "HTTP/1.1 200 OK\r\n";
 			request.resp_headers += ("Content-Type: text/plain\r\n");
-			request.file_len = get_file_len("/Users/alaajili/Desktop/WebServ/cgi/tempfile");
+			request.file_len = get_file_len(out_path.c_str());
 			std::cerr << "file len => " << request.file_len << std::endl;
 			request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
 			request.resp_headers += "Server: klinix\r\n";

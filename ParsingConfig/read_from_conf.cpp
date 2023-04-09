@@ -25,6 +25,8 @@ std::string read_file(const char *file_path)
             to_parse += '\n';
     }
     file.close();
+	if(to_parse[to_parse.size() - 1] != '\n')
+		print_error("your config file should end wirh newline");
     return to_parse;
 }
 
