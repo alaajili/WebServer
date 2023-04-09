@@ -11,11 +11,18 @@ int check_extension2(std::string name)
 		return (0);
 }
 
+std::string int_to_string(int i){
+	std::stringstream ss;
+	ss << i;
+	std::string str = ss.str();
+	return str;
+}
+
 cgi::cgi(std::string p, Request &request)
 {
 
 	query = request.query;
-	port = "8080";
+	port = int_to_string(request.serv_block.port);
 
 	path = p;
 	cgi_pid = -1;
@@ -354,14 +361,12 @@ void cgi::exec(Request &req)
 	}
 	out_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
 	fill_env(req);
-//	for (int i = 0; i < 13; i++) {
-//		std::cerr << env[i] << std::endl;
-//	}
+
 	exec_cgi(args, env, in_fd,req);
 	wait_for_cgi();
 
-	 deleat_heders();
-	// remove("cgi/tempfile");
+	deleat_heders();
+	remove("cgi/tempfile");
 //	if (req.method == POST)
 //		remove("cgi/tmp_body");
 
