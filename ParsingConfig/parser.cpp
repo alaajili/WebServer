@@ -27,28 +27,28 @@ Location    take_location(Holder &holder)
     {
         id = holder.take_id();
         holder.skip_all();
-        if (id == "allow_methods")
+        if (id == "allow_methods" && loc.yes_no.methods == false)
         {
             loc.yes_no.methods = true;
             loc.methods = holder.pick_methods();
         }
-        else if (id == "root")
+        else if (id == "root" && loc.yes_no.root == false)
         {
             loc.yes_no.root = true;
             loc.root = holder.pick_root();
             loc.root = change_path(loc.root);
         }
-        else if (id == "autoindex")
+        else if (id == "autoindex" && loc.yes_no.autoindex == false)
         {
             loc.yes_no.autoindex = true;
             loc.autoindex = holder.pick_autoindex();
         }
-        else if (id == "index")
+        else if (id == "index" && loc.yes_no.index == false)
         {
             loc.yes_no.index = true;
             loc.index = holder.pick_index();
         }
-		else if (id == "upload_path")
+		else if (id == "upload_path" && loc.yes_no.upload_path == false)
 		{
 			loc.yes_no.upload_path = true;
 			loc.upload_path = holder.take_upload_path();
@@ -59,6 +59,13 @@ Location    take_location(Holder &holder)
 			loc.yes_no.cgi = true;
 			holder.take_cgi();
 		}
+        else if (id == "return" && loc.yes_no.return_ == false){
+            loc.yes_no.return_ = true;
+            holder.skip_spaces();
+            loc.return_ = holder.take_id();
+            // std::cout << server.return_ << std::endl;
+            holder.skip_all();
+        }
         else
             print_error("error in location");
     }
@@ -79,22 +86,22 @@ Server  parse_data(Holder& holder)
     {
         holder.skip_all();
         id = holder.take_id();
-        if (id == "port")
+        if (id == "port" && server.yes_or_no.port == false)
         {
             server.yes_or_no.port = true;
             server.port = holder.take_port();
         }
-        else if (id == "host")
+        else if (id == "host" && server.yes_or_no.host == false)
         {
             server.yes_or_no.host = true;
             server.host = holder.take_host();
         }
-        else if (id == "error_page")
+        else if (id == "error_page" && server.yes_or_no.error_pages == false)
         {
             server.yes_or_no.error_pages = true;
             server.error_pages = holder.take_error_pages();
         }
-        else if (id == "name")
+        else if (id == "name" && server.yes_or_no.server_name == false)
         {
             server.yes_or_no.server_name = true;
             server.server_name = holder.take_server_name();
@@ -106,16 +113,9 @@ Server  parse_data(Holder& holder)
             loc = change_path(loc);
             holder.location[loc] = take_location(holder);
         }
-        else if(id == "max_body"){
+        else if(id == "max_body" && server.yes_or_no.max_body == false){
             server.yes_or_no.max_body = true;
             server.max_body = holder.take_port();
-        }
-        else if (id == "return"){
-            server.yes_or_no.return_ = true;
-            holder.skip_spaces();
-            server.return_ = holder.take_id();
-            // std::cout << server.return_ << std::endl;
-            holder.skip_all();
         }
         else if (id == "}")
             break;

@@ -27,7 +27,7 @@ cgi::cgi(std::string p, Request &request)
 	path = p;
 	cgi_pid = -1;
 	pid_status = 0;
-	php = "/Users/alaajili/Desktop/WebServ/cgi/php-cgi";
+	php = "/Users/ael-kouc/Desktop/WebServ/cgi/php-cgi";
 	py = "/usr/local/bin/python3";
 	if(request.method == POST)
 		methode = "POST";
