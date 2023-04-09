@@ -182,11 +182,12 @@ std::string Holder::take_upload_path()
 ////////////////cgi//////////////////////////////
 void    Holder::take_cgi()
 {
+    exit(1);
     skip_spaces();
-    std::vector<std::string> data = split_with_char(take_id_(), ' ');
-    if(data.size() != 2 || (data[1] != ".php" && data[1] != ".py"))
+    std::string data = take_id();
+    if(data != ".php" && data != ".py")
         print_error("CGI invalid !!");
-    tmp[data[1]] = data[0];
+    tmp.push_back(data);
     skip_all();
 }
 

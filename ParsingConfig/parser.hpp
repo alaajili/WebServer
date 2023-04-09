@@ -50,7 +50,7 @@ public:
     int                         autoindex;
     std::string                 index;
 	std::string                 upload_path;
-	std::map<std::string, std::string>  cgi;
+	std::vector<std::string>  cgi;
 
     Location();
 };
@@ -84,7 +84,7 @@ public:
     char                                am_here;
     size_t                              second_index;
     size_t                              var_to_check;
-    std::map<std::string, std::string>  tmp;
+    std::vector<std::string>  tmp;
     std::map<std::string, Location>     location;
 
     Holder(std::string serv);
