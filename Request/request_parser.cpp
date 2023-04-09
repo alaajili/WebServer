@@ -19,6 +19,14 @@ std::vector<std::string>	split_request_str(std::string request_str)
 	return req;
 }
 
+std::string error_file_name() {
+		return "HTTP/1.1 400 Bad Request\r\n"
+			   "Server: klinix\r\n"
+			   "Content-Length: 49\r\n\r\n"
+			   "<h1>400 Bad Request</h1>\n"
+			   "<h2>File-Name ERROR</h2>";
+}
+
 void    check_headers(client_info& client) {
 	Request &request = client.request;
     request.chunked = false;
@@ -56,6 +64,16 @@ void    check_headers(client_info& client) {
 		client.headers_str.done = false;
 		return ;
 	}
+	it = request.headers.find("File-Name");
+	if (request.method == POST && (it == request.headers.end() || request.headers["File-Name"].empty())) {
+		request.resp_headers = error_file_name();
+		request.file_len = 0;
+		client.writable = true;
+		client.headers_str.done = false;
+		return ;
+	}
+
+
 
 }
 
