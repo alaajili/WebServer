@@ -27,11 +27,11 @@ struct bool_server {
     bool server_name;
     bool locations;
     bool max_body;
-    bool return_;
 };
 
 struct bool_location {
     bool methods;
+    bool return_;
     bool root;
     bool autoindex;
     bool index;
@@ -51,7 +51,7 @@ public:
     std::string                 index;
 	std::string                 upload_path;
 	std::vector<std::string>  cgi;
-
+    std::string                         return_;
     Location();
 };
 
@@ -63,7 +63,6 @@ public :
     std::string                         host;
     std::string                         server_name;
     size_t                        		max_body;
-    std::string                         return_;
     std::map<int, std::string>          error_pages;
     std::map<std::string, std::string>  cgi;
     std::map<std::string, Location>     location;

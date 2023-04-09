@@ -36,5 +36,6 @@ void                                generate_headers(Request &request, int statu
 bool                                method_allowed(client_info& client,std::string M);
 std::string							get_file_extension(std::string path);
 bool								path_is_cgi(Request& request);
+void                            	moved_permanently_return(Request &request, std::string url);
 
 #endif //WEBSERV_RESPONSE_H

@@ -59,13 +59,19 @@ void    handle_method(std::list<client_info>& clients, fd_set *write_fds)
 			send_response(client, to_drop);
         }
         else if (client.headers_str.done) {
-            if (client.request.method == GET) {
-				GET_method(client);
+            if (client.request.location.yes_no.return_ == true)
+            {
+                moved_permanently_return(client.request, client.request.location.return_);
+                client.request.file_len = 0;
+		        client.writable = true;
+            }
+            else if (client.request.method == GET) {
+				    GET_method(client);
 			}
             if (client.request.method == POST) {
 				POST_method(client);
 			}
-            if (client.request.method == DELETE){
+            else if (client.request.method == DELETE){
                 delete_method(client);
             }
         }

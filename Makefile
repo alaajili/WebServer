@@ -8,7 +8,7 @@ Request/utils.cpp Request/selection.cpp Response/delete_method.cpp Response/get_
 Response/post_method.cpp Response/resp_utils.cpp Response/auto_index.cpp Cgi/cgi.cpp ParsingConfig/change_path.cpp
 OBJS = $(SRCS:.cpp=.o)
 CC = c++
-CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
+CPPFLAGS = -Wall -Werror -Wextra -std=c++98 #-fsanitize=address -g3
 all: $(NAME)
 
 $(NAME): $(OBJS)
