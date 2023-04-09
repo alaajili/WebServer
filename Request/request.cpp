@@ -98,25 +98,31 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
 void	wait_on_clients(const std::vector<int>& sockets,std::list<client_info>& clients,
 						fd_set *read_fds, fd_set *write_fds)
 {
-	int max_socket = -1;
+
 
 	FD_ZERO(read_fds);
     FD_ZERO(write_fds);
-	for (size_t i = 0; i < sockets.size(); i++) {
-		FD_SET(sockets[i], read_fds);
-		if (sockets[i] > max_socket)
-			max_socket = sockets[i];
-	}
-	for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
-        if (!it->writable)
-            FD_SET(it->sock, read_fds);
-        else
-            FD_SET(it->sock, write_fds);
-		if (it->sock > max_socket)
-			max_socket = it->sock;
-	}
-    while (1) {
-        int ret = select(max_socket + 1, read_fds, write_fds, 0, 0);
+	while (1) {
+		int max_socket = -1;
+		for (size_t i = 0; i < sockets.size(); i++) {
+			FD_SET(sockets[i], read_fds);
+			if (sockets[i] > max_socket)
+				max_socket = sockets[i];
+		}
+		for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+    	    if (!it->writable)
+    	        FD_SET(it->sock, read_fds);
+    	    else
+    	        FD_SET(it->sock, write_fds);
+			if (it->sock > max_socket)
+				max_socket = it->sock;
+		}
+
+		struct timeval tv;
+		tv.tv_sec = 10;
+		tv.tv_usec = 0;
+        int ret = select(max_socket + 1, read_fds, write_fds, 0, &tv);
+		std::cout << "return" <<ret <<std::endl;
         if (ret < 0) {
             // TODO: throw select() exception
             continue;
@@ -201,6 +207,7 @@ void	handle_requests(std::vector<Server>& servers)
         fd_set  write_fds;
 		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
+		std::cerr << "LOOP" << std::endl;
 		get_requests(clients, &read_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);

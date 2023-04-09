@@ -61,7 +61,7 @@ public :
     int                                 port;
     std::string                         host;
     std::string                         server_name;
-    std::string                         max_body;
+    size_t                        		max_body;
     std::map<int, std::string>          error_pages;
     std::map<std::string, std::string>  cgi;
     std::map<std::string, Location>     location;

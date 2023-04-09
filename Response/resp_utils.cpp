@@ -62,6 +62,13 @@ std::string error_400() {
 		   "<h1>400 Bad Request</h1>";
 }
 
+std::string error_413() {
+	return "HTTP/1.1 413 Request Entity Too Large\r\n"
+		   "Server: klinix\r\n"
+		   "Content-Length: 37\r\n\r\n"
+		   "<h1>413 Request Entity Too Large</h1>";
+}
+
 std::string error_501() {
 	return "HTTP/1.1 501 Not Implemented\r\n"
 		   "Server: klinix\r\n"

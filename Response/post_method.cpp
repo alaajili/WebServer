@@ -21,8 +21,9 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
 
 
 	if (!request.out_file.is_open()) {
-		request.out_file.open("b.mp4");
+		request.out_file.open("b");
 		request.size_bool = false;
+		request.recved_bytes = 0;
 	} else {
 		r = recv(client.sock, buff, 1024, 0);
 		request.body.append(buff, r);
@@ -33,6 +34,14 @@ void    handle_chunked(client_info& client, fd_set *read_fds) {
 		if (request.size_bool) {
 			size_t a = std::min(request.chunk_size, request.body_len);
 			request.out_file.write(request.body.c_str(), a);
+			request.recved_bytes += a;
+			if (request.serv_block.yes_or_no.max_body && request.recved_bytes > request.serv_block.max_body) {
+				// content too large
+				request.resp_headers = error_413();
+				client.writable = true;
+				request.file_len = 0;
+				return;
+			}
 			request.chunk_size -= a;
 			request.body_len -= a;
 			request.body.erase(0, a);
@@ -101,10 +110,16 @@ void	POST_method(client_info& client, fd_set *read_fds)
 	if (request.location.yes_no.upload_path) {
 		if (!request.chunked) {
 			if (!request.out_file.is_open()) {
+				request.cont_len = atoi(request.headers["Content-Length"].c_str());
+				if (request.serv_block.yes_or_no.max_body && request.cont_len > request.serv_block.max_body) {
+					// content too large
+					request.resp_headers = error_413();
+					client.writable = true;
+					request.file_len = 0;
+					return;
+				}
 				std::string upload_file = request.location.upload_path + "/b";
 				request.out_file.open(upload_file.c_str());
-				request.cont_len = atoi(request.headers["Content-Length"].c_str());
-				if (request.cont_len)
 				std::cerr << "content-length: " << request.cont_len << std::endl;
 				request.recved_bytes = 0;
 				request.out_file.write(request.body.c_str(), request.body_len);
@@ -115,7 +130,7 @@ void	POST_method(client_info& client, fd_set *read_fds)
 				request.out_file.write(buff, r);
 				request.recved_bytes += r;
 			}
-			if (request.recved_bytes == request.cont_len) {
+			if (request.recved_bytes >= request.cont_len) {
 				request.resp_headers += (request.version + " 201 Created\r\n");
 				request.resp_headers += ("Content-Type: text/plain\r\n");
 				request.resp_headers += ("Content-Length: 8\r\n");
@@ -131,12 +146,22 @@ void	POST_method(client_info& client, fd_set *read_fds)
 	}
     else {
 		if (is_directory(request.path)) {
+			std::cerr << "PATH IS A DIRECTOR WICH IS FORBIDEEN" << std::endl;
 			if (!request.location.yes_no.index) {
-				// forbidden
+				request.resp_headers = error_403();
+				client.writable = true;
+				return;
 			}
 			else {
 				request.path += request.location.index;
 			}
+		}
+		std::string ext = get_file_extension(request.path);
+		std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
+		if (!request.ready_cgi && f == request.location.cgi.end()) {
+			request.resp_headers = error_403();
+			client.writable = true;
+			return;
 		}
 		if (!request.ready_cgi) {
 			read_body_for_cgi(client);
