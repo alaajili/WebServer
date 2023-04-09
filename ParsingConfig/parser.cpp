@@ -59,6 +59,13 @@ Location    take_location(Holder &holder)
 			loc.yes_no.cgi = true;
 			holder.take_cgi();
 		}
+        else if (id == "return"){
+            loc.yes_no.return_ = true;
+            holder.skip_spaces();
+            loc.return_ = holder.take_id();
+            // std::cout << server.return_ << std::endl;
+            holder.skip_all();
+        }
         else
             print_error("error in location");
     }
@@ -109,13 +116,6 @@ Server  parse_data(Holder& holder)
         else if(id == "max_body"){
             server.yes_or_no.max_body = true;
             server.max_body = holder.take_port();
-        }
-        else if (id == "return"){
-            server.yes_or_no.return_ = true;
-            holder.skip_spaces();
-            server.return_ = holder.take_id();
-            // std::cout << server.return_ << std::endl;
-            holder.skip_all();
         }
         else if (id == "}")
             break;

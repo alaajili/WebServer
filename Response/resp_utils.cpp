@@ -82,6 +82,12 @@ void	moved_permanently(Request &request) {
 	request.resp_headers += "Content-Length: 0\r\n\r\n";
 }
 
+void	moved_permanently_return(Request &request, std::string url) {
+	request.resp_headers = "HTTP/1.1 301 Moved Permanently\r\n";
+	request.resp_headers += "Location: " + url + "\r\n";
+	request.resp_headers += "Content-Length: 0\r\n\r\n";
+}
+
 std::string long_to_string(size_t num) {
 	std::ostringstream oss;
 	oss << num;
@@ -112,15 +118,19 @@ std::map<std::string, std::string> init_map() {
 std::string get_content_type(std::string &file_path)
 {
 	static const std::map<std::string, std::string> extension_to_mime_type = init_map();
-
-	std::string extension = file_path.substr(file_path.find_last_of('.'));
+	
+	int _find = file_path.find_last_of('.');
+	if (_find == -1)
+		return "text/plain";
+	std::string extension = file_path.substr(_find);
 	std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
 	std::map<std::string, std::string>::const_iterator it = extension_to_mime_type.find(extension);
 	if (it != extension_to_mime_type.end()) {
 		return it->second;
-	} else {
-		return "application/octet-stream";
+	}
+	else {
+		return "text/plain";
 	}
 }
 

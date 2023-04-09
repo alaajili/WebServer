@@ -12,11 +12,11 @@ Server::Server()
     yes_or_no.server_name = false;
     yes_or_no.locations = false;
     yes_or_no.max_body = false;
-    yes_or_no.return_ = false;
 }
 
 Location::Location()
 {
+    yes_no.return_ = false;
     yes_no.methods = false;
     yes_no.root = false;
     yes_no.autoindex = false;
