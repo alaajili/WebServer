@@ -104,6 +104,7 @@ void	POST_method(client_info& client, fd_set *read_fds)
 				std::string upload_file = request.location.upload_path + "/b";
 				request.out_file.open(upload_file.c_str());
 				request.cont_len = atoi(request.headers["Content-Length"].c_str());
+				if (request.cont_len)
 				std::cerr << "content-length: " << request.cont_len << std::endl;
 				request.recved_bytes = 0;
 				request.out_file.write(request.body.c_str(), request.body_len);
