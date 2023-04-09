@@ -60,7 +60,7 @@ std::string	get_header_name(std::string str)
 	size_t		i;
 
 	i = 0;
-	while (str[i] != ':') {
+	while (i < str.size() && str[i] != ':') {
 		name += str[i];
 		i++;
 	}
@@ -73,7 +73,7 @@ std::string	get_header_value(std::string str)
 	size_t		i;
 
 	i = 0;
-	while (str[i] != ':')
+	while (i < str.size() && str[i] != ':')
 			i++;
 	i+=2;
 	while (i < str.size()) {

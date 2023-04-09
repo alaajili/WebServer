@@ -179,11 +179,14 @@ void	POST_method(client_info& client)
 		if (request.ready_cgi) {
 			cgi cg(request.path, request);
 			cg.exec(request);
-			std::string out_path = cg.outfile_path();
-			request.file.open(out_path.c_str());
+			request.out_path = cg.outfile_path();
+			request.file.open(request.out_path.c_str());
 			request.resp_headers =  "HTTP/1.1 200 OK\r\n";
-			request.resp_headers += ("Content-Type: text/plain\r\n");
-			request.file_len = get_file_len(out_path.c_str());
+			for (size_t i = 0; i < cg.headers.size(); i++) {
+				request.resp_headers += cg.headers[i] + "\r\n";
+			}
+			// request.resp_headers += ("Content-Type: text/html\r\n");
+			request.file_len = get_file_len(request.out_path.c_str());
 			std::cerr << "file len => " << request.file_len << std::endl;
 			request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
 			request.resp_headers += "Server: klinix\r\n";
@@ -202,7 +205,7 @@ void	POST_method(client_info& client)
 					request.file_len = 0;
 					return;
 				}
-				std::string upload_file = request.location.upload_path + "/" + request.headers["File-Name"];
+				std::string upload_file = request.location.upload_path + "/b";
 				request.out_file.open(upload_file.c_str());
 				std::cerr << "content-length: " << request.cont_len << std::endl;
 				request.recved_bytes = 0;
@@ -233,39 +236,5 @@ void	POST_method(client_info& client)
 		request.file_len = 0;
 		client.writable = true;
 	}
-//    else {
-//		if (is_directory(request.path)) {
-//			std::cerr << "PATH IS A DIRECTOR WICH IS FORBIDEEN" << std::endl;
-//			if (!request.location.yes_no.index) {
-//				request.resp_headers = error_403();
-//				client.writable = true;
-//				return;
-//			}
-//			else {
-//				request.path += request.location.index;
-//			}
-//		}
-//		if (!request.ready_cgi && !path_is_cgi(request)) {
-//			request.resp_headers = error_403();
-//			client.writable = true;
-//			return;
-//		}
-//		if (!request.ready_cgi) {
-//			read_body_for_cgi(client);
-//		}
-//		if (request.ready_cgi) {
-//			cgi cg(request.path, request);
-//			cg.exec(request);
-//			std::string out_path = cg.outfile_path();
-//			request.file.open(out_path.c_str());
-//			request.resp_headers =  "HTTP/1.1 200 OK\r\n";
-//			request.resp_headers += ("Content-Type: text/plain\r\n");
-//			request.file_len = get_file_len(out_path.c_str());
-//			std::cerr << "file len => " << request.file_len << std::endl;
-//			request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
-//			request.resp_headers += "Server: klinix\r\n";
-//			request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
-//			client.writable = true;
-//		}
-//    }
+
 }

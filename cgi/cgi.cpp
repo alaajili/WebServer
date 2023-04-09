@@ -305,9 +305,11 @@ void cgi::deleat_heders()
 		std::cerr << "GETLINEeee" << std::endl;
 		while (getline(in, str))
 		{
+			std::cerr << str << std::endl;
 			if (str != "\r")
 			{
 				c_type += str;
+				headers.push_back(str);
 				c_type += "\r\n";
 			}
 			else
@@ -325,6 +327,8 @@ void cgi::deleat_heders()
 			f += '\n';
 		}
 		content_type = c_type.substr(0, c_type.size() - 1);
+		for (size_t i=0; i < headers.size(); i++)
+			std::cerr << headers[i] << std::endl;
 	}
 	else if (ext == 2)
 	{
@@ -367,8 +371,8 @@ void cgi::exec(Request &req)
 
 	deleat_heders();
 	remove("cgi/tempfile");
-//	if (req.method == POST)
-//		remove("cgi/tmp_body");
+	if (req.method == POST)
+		remove("cgi/tmp_body");
 
 	int i = 0;
 	while (env[i]){

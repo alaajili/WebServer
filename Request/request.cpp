@@ -20,6 +20,17 @@ void    Request::clear() {
     matched = false;
     chunked = false;
     resp_headers.clear();
+	if (!out_path.empty()) {
+		remove(out_path.c_str());
+		out_path.clear();
+	}
+
+	body.clear();
+	body_len = 0;
+	cont_len = 0;
+	is_cgi = false;
+	ready_cgi = false;
+	size_bool = false;
 }
 
 
@@ -199,6 +210,7 @@ void	get_requests(std::list<client_info>& clients, fd_set *read_fds)
                     int start = (f % 1024) + 4;
                     it->request.body.append(buff + start, buff + r);
                     it->request.body_len = r - start;
+					std::cerr << "{\n" << it->headers_str.str << "\n}" << std::endl;
                 }
             }
         }

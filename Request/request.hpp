@@ -50,6 +50,7 @@ struct Request {
     size_t                  			sent_bytes;
     size_t                  			recved_bytes;
     std::string             			resp_headers;
+	std::string							out_path;
 
 
     size_t                  cont_len;
@@ -59,8 +60,8 @@ struct Request {
     size_t                  chunk_size;
     bool                    size_bool;
 
-	bool is_cgi;
-	bool ready_cgi;
+	bool					is_cgi;
+	bool					ready_cgi;
 
     // server block and location
     Server      serv_block;

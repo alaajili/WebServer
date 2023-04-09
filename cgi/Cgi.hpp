@@ -32,9 +32,11 @@ private:
     std::string outname;
     int ext;
     std::string port;
+
     // Request req;
 
 public:
+	std::vector<std::string> headers;
     enum
     {
         NONE = 0,
