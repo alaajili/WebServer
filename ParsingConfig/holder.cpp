@@ -172,6 +172,8 @@ std::string Holder::take_upload_path()
     std::string upload_path;
 
     skip_spaces();
+    if(server[index] == '}')
+        print_error("unfined upload path");
     upload_path = take_id();
     skip_all();
     return upload_path;
