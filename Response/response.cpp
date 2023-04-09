@@ -4,6 +4,17 @@
 
 #include "response.hpp"
 
+bool    method_allowed(client_info& client,std::string M)
+{
+    std::vector<std::string>::iterator it;
+    if (client.request.location.methods.empty())
+        return true;
+    it = std::find(client.request.location.methods.begin(),client.request.location.methods.end(), M);
+    if (it != client.request.location.methods.end())
+        return true;
+    return false;
+}
+
 void    send_response(client_info& client)
 {
     if (!client.request.headers_sent) {
@@ -42,7 +53,7 @@ void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set
         }
         else if (client.headers_str.done) {
             if (client.request.method == GET) {
-				GET_method(client);
+				    GET_method(client);
 			}
             if (client.request.method == POST) {
 				POST_method(client, read_fds);

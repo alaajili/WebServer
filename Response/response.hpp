@@ -18,8 +18,9 @@ void    							GET_method(client_info& client);
 void								POST_method(client_info& client, fd_set *read_fds);
 void                                delete_method(client_info& client);
 std::map<int, std::string>          init_map_status();
-std::string 						error_404();
 std::string 						error_403();
+std::string 						error_404();
+std::string                         error_405();
 std::string                         error_500();
 std::string                         error_501();
 std::string                         error_400();
@@ -31,6 +32,6 @@ std::string							get_content_type(std::string &file_path);
 size_t								get_file_len(std::string path);
 bool                                check_error_pages(Request& request,int status);
 void                                generate_headers(Request &request, int status);
-void								generate_headers(Request &request, int status);
+bool                                method_allowed(client_info& client,std::string M);
 
 #endif //WEBSERV_RESPONSE_H

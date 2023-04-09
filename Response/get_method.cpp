@@ -54,14 +54,20 @@ void	GET_method(client_info&	client)
 	int default_status = 200;
 
 
-	// if (client.request.method == DELETE)
-	// {
-	// 	request.resp_headers = delete_method(client);
-	// 	request.file_len = 0;
-	// 	client.writable = true;
-	// 	return;
-	// }
-	// std::cerr << "PATH: " << request.path << std::endl;
+	if (method_allowed(client,"GET") == false)
+	{
+		if (check_error_pages(request,405))
+		{
+			request.path = request.serv_block.error_pages[405];
+			default_status = 405;
+		}
+		else {
+			request.resp_headers = error_405();
+			client.writable = true;
+			request.file_len = 0;
+			return ;
+		}
+	}
 	// check if is a directory
 	if (is_directory(request.path)) {
 		if (request.uri[request.uri.length() - 1] != '/') {

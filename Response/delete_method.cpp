@@ -83,6 +83,20 @@ void    delete_method(client_info& client)
     std::string         file_path = request.path;
     int                 default_status;
 
+    if (method_allowed(client,"DELETE") == false)
+	{
+		if (check_error_pages(request,405))
+		{
+			request.path = request.serv_block.error_pages[405];
+			default_status = 405;
+		}
+		else {
+			request.resp_headers = error_405();
+			client.writable = true;
+			request.file_len = 0;
+			return ;
+		}
+	}
     if (is_directory(file_path))
     {
         if (isAccessibleDir(file_path) == true)
