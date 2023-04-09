@@ -59,7 +59,7 @@ Location    take_location(Holder &holder)
 			loc.yes_no.cgi = true;
 			holder.take_cgi();
 		}
-        else if (id == "return"){
+        else if (id == "return" && loc.yes_no.return_ == false){
             loc.yes_no.return_ = true;
             holder.skip_spaces();
             loc.return_ = holder.take_id();
