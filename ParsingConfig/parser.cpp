@@ -103,6 +103,10 @@ Server  parse_data(Holder& holder)
             std::string loc = holder.take_loc_path();
             holder.location[loc] = take_location(holder);
         }
+        else if(id == "max_body"){
+            server.yes_or_no.max_body = true;
+            server.max_body = holder.take_port();
+        }
         else if (id == "}")
             break;
         else
