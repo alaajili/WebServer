@@ -8,6 +8,10 @@
 
 
 void    Request::clear() {
+	path.clear();
+	version.clear();
+	query.clear();
+	method = NONE;
     headers.clear();
     headers_sent = false;
     file.close();
@@ -95,11 +99,20 @@ std::vector<int>	init_sockets(std::vector<Server>& servers)
     return sockets;
 }
 
+void	check_hanged_clients(std::list<client_info>& clients) {
+	for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
+		if (!it->writable && it->request.method == POST) {
+			it->request.resp_headers = error_400();
+			it->writable = true;
+			it->request.file_len = 0;
+			it->request.out_file.close();
+		}
+	}
+}
+
 void	wait_on_clients(const std::vector<int>& sockets,std::list<client_info>& clients,
 						fd_set *read_fds, fd_set *write_fds)
 {
-
-
 	FD_ZERO(read_fds);
     FD_ZERO(write_fds);
 	while (1) {
@@ -119,16 +132,14 @@ void	wait_on_clients(const std::vector<int>& sockets,std::list<client_info>& cli
 		}
 
 		struct timeval tv;
-		tv.tv_sec = 10;
+		tv.tv_sec = 15;
 		tv.tv_usec = 0;
         int ret = select(max_socket + 1, read_fds, write_fds, 0, &tv);
-		std::cout << "return" <<ret <<std::endl;
         if (ret < 0) {
-            // TODO: throw select() exception
             continue;
         }
         else if (ret == 0) {
-            std::cerr << "GO AGAIN" << std::endl;
+			check_hanged_clients(clients);
             continue;
         }
         else {
@@ -207,11 +218,10 @@ void	handle_requests(std::vector<Server>& servers)
         fd_set  write_fds;
 		wait_on_clients(sockets, clients, &read_fds, &write_fds);
 		accept_clients(sockets, clients, &read_fds);
-		std::cerr << "LOOP" << std::endl;
 		get_requests(clients, &read_fds);
         parse_requests(clients);
         server_block_selection(clients, servers);
-        handle_method(clients, &write_fds, &read_fds);
+        handle_method(clients, &write_fds);
 	}
 }
 

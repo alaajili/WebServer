@@ -15,10 +15,15 @@ bool    method_allowed(client_info& client,std::string M)
     return false;
 }
 
-void    send_response(client_info& client)
+void    send_response(client_info& client, bool& to_drop)
 {
     if (!client.request.headers_sent) {
-        send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
+        int rr = send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
+		if (rr == -1) {
+			close(client.sock);
+			to_drop = true;
+			return;
+		}
         client.request.sent_bytes = 0;
         client.request.headers_sent = true;
         std::cout << "\033[1;33m" << "start sending data to client\033[0m" << std::endl;
@@ -30,7 +35,8 @@ void    send_response(client_info& client)
 			int r = client.request.file.gcount();
 			int rr = send(client.sock, buff, r, 0);
 			if (rr == -1) {
-				std::cerr << "ERROR IN SEND" << std::endl;
+				close(client.sock);
+				to_drop = true;
 				return;
 			}
 			client.request.sent_bytes += rr;
@@ -44,24 +50,31 @@ void    send_response(client_info& client)
     }
 }
 
-void    handle_method(std::list<client_info>& clients, fd_set *write_fds, fd_set *read_fds)
+void    handle_method(std::list<client_info>& clients, fd_set *write_fds)
 {
     for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
         client_info &client = *it;
+		bool to_drop = false;
         if (FD_ISSET(client.sock, write_fds)) {
-			send_response(client);
+			send_response(client, to_drop);
         }
         else if (client.headers_str.done) {
             if (client.request.method == GET) {
-				    GET_method(client);
+				GET_method(client);
 			}
             if (client.request.method == POST) {
-				POST_method(client, read_fds);
+				POST_method(client);
 			}
             if (client.request.method == DELETE){
                 delete_method(client);
             }
         }
+		if (to_drop) {
+			std::list<client_info>::iterator tmp = it;
+			tmp--;
+			clients.erase(it);
+			it = tmp;
+		}
     }
 }
 
