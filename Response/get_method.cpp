@@ -47,6 +47,14 @@ void	generate_headers_for_cgi(Request &request, std::string out) {
 	request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";
 }
 
+bool	path_is_cgi(Request& request) {
+	std::string ext = get_file_extension(request.path);
+	for (size_t i = 0; i < request.location.cgi.size(); i++) {
+		if (request.location.cgi[i] == ext)
+			return true;
+	}
+	return false;
+}
 
 void	GET_method(client_info&	client)
 {
@@ -98,9 +106,9 @@ void	GET_method(client_info&	client)
 			}
 		}
 	}
-	std::string ext = get_file_extension(request.path);
-    std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
-    if (f != request.location.cgi.end()) {
+
+    if (path_is_cgi(request)) {
+		request.is_cgi = true;
 		cgi cg(request.path, request);
 		cg.exec(request);
 		std::string out_path = cg.outfile_path();

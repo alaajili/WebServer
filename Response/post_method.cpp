@@ -156,9 +156,7 @@ void	POST_method(client_info& client, fd_set *read_fds)
 				request.path += request.location.index;
 			}
 		}
-		std::string ext = get_file_extension(request.path);
-		std::map<std::string, std::string>::iterator f = request.location.cgi.find(ext);
-		if (!request.ready_cgi && f == request.location.cgi.end()) {
+		if (!request.ready_cgi && !path_is_cgi(request)) {
 			request.resp_headers = error_403();
 			client.writable = true;
 			return;

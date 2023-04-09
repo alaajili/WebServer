@@ -172,6 +172,8 @@ std::string Holder::take_upload_path()
     std::string upload_path;
 
     skip_spaces();
+    if(server[index] == '}')
+        print_error("unfined upload path");
     upload_path = take_id();
     skip_all();
     return upload_path;
@@ -181,10 +183,10 @@ std::string Holder::take_upload_path()
 void    Holder::take_cgi()
 {
     skip_spaces();
-    std::vector<std::string> data = split_with_char(take_id_(), ' ');
-    if(data.size() != 2 || (data[1] != ".php" && data[1] != ".py"))
+    std::string data = take_id();
+    if(data != ".php" && data != ".py")
         print_error("CGI invalid !!");
-    tmp[data[1]] = data[0];
+    tmp.push_back(data);
     skip_all();
 }
 

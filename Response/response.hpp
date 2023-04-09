@@ -35,5 +35,6 @@ bool                                check_error_pages(Request& request,int statu
 void                                generate_headers(Request &request, int status);
 bool                                method_allowed(client_info& client,std::string M);
 std::string							get_file_extension(std::string path);
+bool								path_is_cgi(Request& request);
 
 #endif //WEBSERV_RESPONSE_H

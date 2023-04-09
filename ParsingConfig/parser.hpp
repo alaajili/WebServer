@@ -27,6 +27,7 @@ struct bool_server {
     bool server_name;
     bool locations;
     bool max_body;
+    bool return_;
 };
 
 struct bool_location {
@@ -49,7 +50,7 @@ public:
     int                         autoindex;
     std::string                 index;
 	std::string                 upload_path;
-	std::map<std::string, std::string>  cgi;
+	std::vector<std::string>  cgi;
 
     Location();
 };
@@ -62,6 +63,7 @@ public :
     std::string                         host;
     std::string                         server_name;
     size_t                        		max_body;
+    std::string                         return_;
     std::map<int, std::string>          error_pages;
     std::map<std::string, std::string>  cgi;
     std::map<std::string, Location>     location;
@@ -82,7 +84,7 @@ public:
     char                                am_here;
     size_t                              second_index;
     size_t                              var_to_check;
-    std::map<std::string, std::string>  tmp;
+    std::vector<std::string>  tmp;
     std::map<std::string, Location>     location;
 
     Holder(std::string serv);
@@ -129,6 +131,7 @@ std::vector<std::string>    split_with_char(std::string str, char delimiter);
 bool                        check_is_digit(std::string tmp);
 void                        print_error(std::string error);
 std::vector<Server>         parse_conf_file(const char *file_path);
-
+int                         pick_index(std::string path, std::string flag);
+std::string                 change_path(std::string path);
 
 #endif //WEBSERVER_PARSER_HPP

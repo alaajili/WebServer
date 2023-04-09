@@ -36,6 +36,7 @@ Location    take_location(Holder &holder)
         {
             loc.yes_no.root = true;
             loc.root = holder.pick_root();
+            loc.root = change_path(loc.root);
         }
         else if (id == "autoindex")
         {
@@ -51,6 +52,7 @@ Location    take_location(Holder &holder)
 		{
 			loc.yes_no.upload_path = true;
 			loc.upload_path = holder.take_upload_path();
+            loc.upload_path = change_path(loc.upload_path);
 		}
 		else if (id == "cgi")
 		{
@@ -101,11 +103,19 @@ Server  parse_data(Holder& holder)
         {
             server.yes_or_no.locations = true;
             std::string loc = holder.take_loc_path();
+            loc = change_path(loc);
             holder.location[loc] = take_location(holder);
         }
         else if(id == "max_body"){
             server.yes_or_no.max_body = true;
             server.max_body = holder.take_port();
+        }
+        else if (id == "return"){
+            server.yes_or_no.return_ = true;
+            holder.skip_spaces();
+            server.return_ = holder.take_id();
+            // std::cout << server.return_ << std::endl;
+            holder.skip_all();
         }
         else if (id == "}")
             break;

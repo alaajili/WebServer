@@ -59,7 +59,7 @@ struct Request {
     size_t                  chunk_size;
     bool                    size_bool;
 
-
+	bool is_cgi;
 	bool ready_cgi;
 
     // server block and location
