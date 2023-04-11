@@ -83,7 +83,7 @@ void    delete_method(client_info& client)
     std::string         file_path = request.path;
     int                 default_status;
 
-    if (method_allowed(client,"DELETE") == false)
+    if (!method_allowed(client,"DELETE"))
 	{
 		if (check_error_pages(request,405))
 		{
@@ -99,7 +99,7 @@ void    delete_method(client_info& client)
 	}
     if (is_directory(file_path))
     {
-        if (isAccessibleDir(file_path) == true)
+        if (isAccessibleDir(file_path))
         {
             removeDirectory(file_path);  
             request.resp_headers = No_Content_204();
@@ -123,7 +123,7 @@ void    delete_method(client_info& client)
     }
     else{
         std::ifstream file(file_path.c_str());
-        if (!file.good() && isAccessible(file_path) == true){
+        if (!file.good() && isAccessible(file_path)){
 			if (check_error_pages(request,404)){
 				request.path = request.serv_block.error_pages[404];
 				default_status = 404;
@@ -136,7 +136,7 @@ void    delete_method(client_info& client)
             }
         }
         else{
-            if (isAccessible(file_path) == true){
+            if (isAccessible(file_path)){
                 removeFile(file_path);
                 request.resp_headers = No_Content_204();
                 client.writable = true;

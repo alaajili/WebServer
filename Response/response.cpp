@@ -31,15 +31,18 @@ void    send_response(client_info& client, bool& to_drop)
     else {
 		if (client.request.file_len) {
 			char buff[1024];
-			client.request.file.read(buff, 1024);
-			int r = client.request.file.gcount();
-			int rr = send(client.sock, buff, r, 0);
-			if (rr == -1) {
-				close(client.sock);
-				to_drop = true;
-				return;
+			if (client.request.file.good()) {
+				client.request.file.read(buff, 1024);
+				int r = client.request.file.gcount();
+				if (r == 0) std::cerr << "AWIIIILIIII" << std::endl;
+				int rr = send(client.sock, buff, r, 0);
+				if (rr == -1) {
+					close(client.sock);
+					to_drop = true;
+					return;
+				}
+				client.request.sent_bytes += rr;
 			}
-			client.request.sent_bytes += rr;
 		}
 		if (client.request.sent_bytes == client.request.file_len) {
             client.request.clear();
@@ -59,14 +62,14 @@ void    handle_method(std::list<client_info>& clients, fd_set *write_fds)
 			send_response(client, to_drop);
         }
         else if (client.headers_str.done) {
-            if (client.request.location.yes_no.return_ == true)
+            if (client.request.location.yes_no.return_)
             {
                 moved_permanently_return(client.request, client.request.location.return_);
                 client.request.file_len = 0;
 		        client.writable = true;
             }
             else if (client.request.method == GET) {
-				    GET_method(client);
+				GET_method(client);
 			}
             if (client.request.method == POST) {
 				POST_method(client);

@@ -43,6 +43,7 @@ void	generate_headers_for_cgi(Request &request, std::string out, cgi cg) {
 	for (size_t i = 0; i < cg.headers.size(); i++) {
 		request.resp_headers += cg.headers[i] + "\r\n";
 	}
+	if (cg.headers.size())
 	// request.resp_headers += ("Content-Type: text/html\r\n");
 	request.file_len = get_file_len(out);
 	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
@@ -65,7 +66,7 @@ void	GET_method(client_info&	client)
 	int default_status = 200;
 
 
-	if (method_allowed(client,"GET") == false)
+	if (!method_allowed(client,"GET"))
 	{
 		if (check_error_pages(request,405))
 		{

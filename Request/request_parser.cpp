@@ -64,14 +64,6 @@ void    check_headers(client_info& client) {
 		client.headers_str.done = false;
 		return ;
 	}
-//	it = request.headers.find("File-Name");
-//	if (request.method == POST && (it == request.headers.end() || request.headers["File-Name"].empty())) {
-//		request.resp_headers = error_file_name();
-//		request.file_len = 0;
-//		client.writable = true;
-//		client.headers_str.done = false;
-//		return ;
-//	}
 
 
 

@@ -297,12 +297,10 @@ void cgi::deleat_heders()
 	std::string c_type;
 
 	wait_for_tempfile_file();
-
 	in.open("cgi/tempfile", std::ios::in);
 
 	if (ext == 1)
 	{
-		std::cerr << "GETLINEeee" << std::endl;
 		while (getline(in, str))
 		{
 			std::cerr << str << std::endl;
@@ -327,6 +325,7 @@ void cgi::deleat_heders()
 			f += '\n';
 		}
 		content_type = c_type.substr(0, c_type.size() - 1);
+		std::cerr << "SIZE = " << headers.size() << std::endl;
 		for (size_t i=0; i < headers.size(); i++)
 			std::cerr << headers[i] << std::endl;
 	}
@@ -365,8 +364,8 @@ void cgi::exec(Request &req)
 	}
 	out_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
 	fill_env(req);
-
 	exec_cgi(args, env, in_fd,req);
+
 	wait_for_cgi();
 
 	deleat_heders();
