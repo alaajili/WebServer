@@ -43,9 +43,11 @@ void	generate_headers_for_cgi(Request &request, std::string out, cgi cg) {
 	for (size_t i = 0; i < cg.headers.size(); i++) {
 		request.resp_headers += cg.headers[i] + "\r\n";
 	}
-	if (cg.headers.size())
-	// request.resp_headers += ("Content-Type: text/html\r\n");
+//	if (cg.headers.size())
+    request.resp_headers += ("Content-Type: text/html\r\n");
 	request.file_len = get_file_len(out);
+	std::cerr << "out: " << out << std::endl;
+	std::cerr << "con_len: " << request.file_len << std::endl;
 	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
 	request.resp_headers += "Server: klinix\r\n";
 	request.resp_headers += "Connection: " + request.headers["Connection"] + "\r\n\r\n";

@@ -27,7 +27,7 @@ cgi::cgi(std::string p, Request &request)
 	path = p;
 	cgi_pid = -1;
 	pid_status = 0;
-	php = "/Users/ael-kouc/Desktop/WebServ/cgi/php-cgi";
+	php = "cgi/php-cgi";
 	py = "/usr/local/bin/python3";
 	if(request.method == POST)
 		methode = "POST";
@@ -165,6 +165,7 @@ void cgi::fill_env(Request &req)
 void cgi::exec_cgi(char **args, char **env, int fd, Request &req)
 {
 	lseek(out_fd, 0, SEEK_SET);
+	std::cout << "mn west exec "<<out_fd << std::endl;
 	cgi_pid = fork();
 	if (cgi_pid == -1)
 	{
@@ -174,9 +175,12 @@ void cgi::exec_cgi(char **args, char **env, int fd, Request &req)
 	{
 		if (req.method == POST)
 			dup2(fd, 0);
+
 		dup2(out_fd, 1);
-		if (execve(args[0], args, env) == -1)
+		if (execve(args[0], args, env) == -1) {
+			// std::cout << "rachid haymchi y7wi achraf" << std::endl;
 			exit(1);
+		}
 	}
 }
 
@@ -237,9 +241,10 @@ void cgi::wait_for_tempfile_file()
 {
 	while (true)
 	{
+        std::cerr << "HERE" << std::endl;
 		std::string t;
 		std::fstream tempfile;
-		tempfile.open("cgi/tempfile");
+		tempfile.open("cgi/tempfile", std::ios::in);
 		if(getline(tempfile, t))
 		{
 			break;
@@ -303,6 +308,7 @@ void cgi::deleat_heders()
 	{
 		while (getline(in, str))
 		{
+			std::cerr << "HEY" << std::endl;
 			std::cerr << str << std::endl;
 			if (str != "\r")
 			{
@@ -363,9 +369,10 @@ void cgi::exec(Request &req)
 		lseek(in_fd, 0, SEEK_SET);
 	}
 	out_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
+	std::cout << "out_fd == "<<out_fd << std::endl;
 	fill_env(req);
 	exec_cgi(args, env, in_fd,req);
-
+	close(out_fd);
 	wait_for_cgi();
 
 	deleat_heders();

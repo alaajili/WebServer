@@ -20,10 +20,10 @@ void    Request::clear() {
     matched = false;
     chunked = false;
     resp_headers.clear();
-	if (!out_path.empty()) {
+	if (!out_path.empty())
 		remove(out_path.c_str());
-		out_path.clear();
-	}
+	out_path.clear();
+
 
 	body.clear();
 	body_len = 0;
@@ -136,7 +136,8 @@ void	wait_on_clients(const std::vector<int>& sockets,std::list<client_info>& cli
 		for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
     	    if (it->writable)
     	        FD_SET(it->sock, write_fds);
-			FD_SET(it->sock, read_fds);
+            else
+			    FD_SET(it->sock, read_fds);
 			if (it->sock > max_socket)
 				max_socket = it->sock;
 		}
@@ -193,7 +194,7 @@ void	get_requests(std::list<client_info>& clients, fd_set *read_fds)
                 clients.erase(it);
                 it = it2;
                 continue;
-            } else if (r < 0) {
+            } else if (r == -1) {
                 std::cerr << "Client Disconnected!!! r < 0" << std::endl;
                 close(it->sock);
                 std::list<client_info>::iterator it2 = it;

@@ -31,19 +31,16 @@ void    send_response(client_info& client, bool& to_drop)
     else {
 		if (client.request.file_len) {
 			char buff[1024];
-			if (client.request.file.good()) {
-				client.request.file.read(buff, 1024);
-				int r = client.request.file.gcount();
-				if (r == 0) std::cerr << "AWIIIILIIII" << std::endl;
-				int rr = send(client.sock, buff, r, 0);
-				if (rr == -1) {
-					close(client.sock);
-					to_drop = true;
-					return;
-				}
-				client.request.sent_bytes += rr;
+            client.request.file.read(buff, 1024);
+            int r = client.request.file.gcount();
+            int rr = send(client.sock, buff, r, 0);
+            if (rr == -1) {
+                close(client.sock);
+                to_drop = true;
+                return;
+            }
+            client.request.sent_bytes += rr;
 			}
-		}
 		if (client.request.sent_bytes == client.request.file_len) {
             client.request.clear();
             client.headers_str.clear();
