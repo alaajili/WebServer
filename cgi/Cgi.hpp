@@ -9,6 +9,10 @@
 #include <chrono>
 #include <thread>
 #include<string>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <signal.h>
+
 #include "../Request/request.hpp"
 
 class cgi

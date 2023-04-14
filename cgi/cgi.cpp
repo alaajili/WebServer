@@ -58,12 +58,12 @@ std::string cgi::rand_file()
 
 std::string cgi::outfile_path()
 {
-	char buff[PATH_MAX];
-	getcwd(buff, PATH_MAX);
-	std::string outfile_path(buff);
-	outfile_path.append("/");
-	outfile_path.append(outname);
-	return (outfile_path);
+    char buff[PATH_MAX];
+    getcwd(buff, PATH_MAX);
+    std::string outfile_path(buff);
+    outfile_path.append("/");
+    outfile_path.append(outname);
+    return (outname);
 }
 
 void cgi::fill_env(Request &req)
@@ -165,7 +165,6 @@ void cgi::fill_env(Request &req)
 void cgi::exec_cgi(char **args, char **env, int fd, Request &req)
 {
 	lseek(out_fd, 0, SEEK_SET);
-	std::cout << "mn west exec "<<out_fd << std::endl;
 	cgi_pid = fork();
 	if (cgi_pid == -1)
 	{
@@ -178,30 +177,67 @@ void cgi::exec_cgi(char **args, char **env, int fd, Request &req)
 
 		dup2(out_fd, 1);
 		if (execve(args[0], args, env) == -1) {
-			// std::cout << "rachid haymchi y7wi achraf" << std::endl;
 			exit(1);
 		}
 	}
 }
 
+
 void cgi::wait_for_cgi()
 {
-	int s_;
-	int pid = waitpid(cgi_pid, &s_, WNOHANG);
-	if (pid == -1)
-		pid_status = ERROR;
-	else if (pid != 0)
-	{
-		if (WIFSIGNALED(pid_status))
-			pid_status = ERROR;
-		else
-			pid_status = DONE;
-	}
-	if (pid_status == DONE || pid_status == ERROR)
-	{
-		close(out_fd);
-		close(in_fd);
-	}
+//    pid_status = 0;
+//    struct timeval start_time, current_time;
+//
+//    gettimeofday(&start_time, NULL);
+//
+//	int s_;
+//    while (pid_status == 0) {
+//        gettimeofday(&current_time, NULL);
+//        if ((current_time.tv_sec - start_time.tv_sec) >= 5) { // Timeout in 10 seconds
+//            // Timeout has elapsed, terminate child process
+//            close(out_fd);
+//            close(in_fd);
+//            kill(cgi_pid, SIGKILL);
+//            throw 504;
+//        }
+//        int pid = waitpid(cgi_pid, &s_, WNOHANG);
+//        if (pid == -1) {
+//            pid_status = ERROR;
+//        }
+//        else if (pid == 0)
+//            usleep(100000);
+//        else {
+//            if (WEXITSTATUS(s_) == 1) {
+//                pid_status = ERROR;
+//            }
+//            else
+//                pid_status = DONE;
+//        }
+//    }
+//    close(out_fd);
+//    close(in_fd);
+//    if (pid_status == ERROR)
+//        throw 500;
+
+    // TODO: timeout gateway
+    int s_;
+    int pid = waitpid(cgi_pid, &s_, WNOHANG);
+    if (pid == -1)
+        pid_status = ERROR;
+    else if (pid != 0)
+    {
+        if (WIFSIGNALED(pid_status))
+            pid_status = ERROR;
+        else
+            pid_status = DONE;
+    }
+    if (pid_status == DONE || pid_status == ERROR)
+    {
+        close(out_fd);
+        close(in_fd);
+        if (pid_status == ERROR)
+            throw 500;
+    }
 }
 
 int cgi::check_extension(std::string str)
@@ -241,7 +277,6 @@ void cgi::wait_for_tempfile_file()
 {
 	while (true)
 	{
-        std::cerr << "HERE" << std::endl;
 		std::string t;
 		std::fstream tempfile;
 		tempfile.open("cgi/tempfile", std::ios::in);
@@ -308,12 +343,10 @@ void cgi::deleat_heders()
 	{
 		while (getline(in, str))
 		{
-			std::cerr << "HEY" << std::endl;
-			std::cerr << str << std::endl;
 			if (str != "\r")
 			{
 				c_type += str;
-				headers.push_back(str);
+                headers.push_back(str);
 				c_type += "\r\n";
 			}
 			else
@@ -331,9 +364,6 @@ void cgi::deleat_heders()
 			f += '\n';
 		}
 		content_type = c_type.substr(0, c_type.size() - 1);
-		std::cerr << "SIZE = " << headers.size() << std::endl;
-		for (size_t i=0; i < headers.size(); i++)
-			std::cerr << headers[i] << std::endl;
 	}
 	else if (ext == 2)
 	{
@@ -349,6 +379,7 @@ void cgi::deleat_heders()
 	outfile.open(outname, std::ios::out);
 	outfile << f;
 	in.close();
+    outfile.close();
 }
 
 void cgi::exec(Request &req)
@@ -359,7 +390,7 @@ void cgi::exec(Request &req)
 		if (access(args[0], F_OK | X_OK) == -1)
 			throw(cgi_open_error());
 	}
-	catch(...){
+	catch(...) {
 	}
 	outname = "cgi/" + rand_file();
 	if (req.method == POST)
@@ -369,12 +400,30 @@ void cgi::exec(Request &req)
 		lseek(in_fd, 0, SEEK_SET);
 	}
 	out_fd = open("cgi/tempfile", O_CREAT | O_WRONLY | O_TRUNC, 0666);
-	std::cout << "out_fd == "<<out_fd << std::endl;
 	fill_env(req);
-	exec_cgi(args, env, in_fd,req);
-	close(out_fd);
-	wait_for_cgi();
+    try {
 
+        exec_cgi(args, env, in_fd, req);
+        close(out_fd);
+        wait_for_cgi();
+    } catch (int status) {
+        remove("cgi/tempfile");
+        if (req.method == POST)
+            remove("cgi/tmp_body");
+        int i = 0;
+        while (env[i]){
+            delete env[i];
+            i++;
+        }
+        i = 0;
+        while (args[i]) {
+            delete args[i];
+            i++;
+        }
+        delete[] args;
+        delete[] env;
+        throw (status);
+    }
 	deleat_heders();
 	remove("cgi/tempfile");
 	if (req.method == POST)

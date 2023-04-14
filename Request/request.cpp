@@ -9,6 +9,7 @@
 
 void    Request::clear() {
 	path.clear();
+    uri.clear();
 	version.clear();
 	query.clear();
 	method = NONE;
@@ -20,14 +21,16 @@ void    Request::clear() {
     matched = false;
     chunked = false;
     resp_headers.clear();
-	if (!out_path.empty())
-		remove(out_path.c_str());
+	if (!out_path.empty()) {
+        remove(out_path.c_str());
+    }
 	out_path.clear();
 
 
 	body.clear();
 	body_len = 0;
 	cont_len = 0;
+    recved_bytes = 0;
 	is_cgi = false;
 	ready_cgi = false;
 	size_bool = false;
@@ -52,6 +55,19 @@ client_info::client_info(const client_info& ci) {
     writable = ci.writable;
 
     request.matched = ci.request.matched;
+    request.headers_sent = ci.request.headers_sent;
+    request.file_len = ci.request.file_len;
+    request.body_len = ci.request.body_len;
+    request.cont_len = ci.request.cont_len;
+    request.size_bool = ci.request.size_bool;
+    request.matched = ci.request.matched;
+    request.chunked = ci.request.chunked;
+    request.sent_bytes = ci.request.sent_bytes;
+    request.recved_bytes = ci.request.recved_bytes;
+    request.is_cgi = ci.request.is_cgi;
+    request.ready_cgi = ci.request.ready_cgi;
+    request.size_bool = ci.request.size_bool;
+
 
     headers_str.done = ci.headers_str.done;
     headers_str.parsed = ci.headers_str.parsed;
@@ -64,6 +80,18 @@ client_info&    client_info::operator=(const client_info& ci) {
     writable = ci.writable;
 
     request.matched = ci.request.matched;
+    request.headers_sent = ci.request.headers_sent;
+    request.file_len = ci.request.file_len;
+    request.body_len = ci.request.body_len;
+    request.cont_len = ci.request.cont_len;
+    request.size_bool = ci.request.size_bool;
+    request.matched = ci.request.matched;
+    request.chunked = ci.request.chunked;
+    request.sent_bytes = ci.request.sent_bytes;
+    request.recved_bytes = ci.request.recved_bytes;
+    request.is_cgi = ci.request.is_cgi;
+    request.ready_cgi = ci.request.ready_cgi;
+    request.size_bool = ci.request.size_bool;
 
     headers_str.done = ci.headers_str.done;
     headers_str.parsed = ci.headers_str.parsed;
@@ -172,9 +200,10 @@ void	accept_clients(const std::vector<int>& sockets, std::list<client_info>& cli
             new_client.writable = false;
             new_client.headers_str.done = false;
             new_client.headers_str.parsed = false;
+            new_client.request.clear();
 			clients.push_back(new_client);
-			std::cerr << "\033[1;32m" << "NEW CLIENT CONNECTED marhbaaa biiiiik" << std::endl;
-			std::cerr << "NUMBER OF CLIENTS: " << clients.size() << "\033[0m" <<std::endl;
+			std::cout << "\033[1;32m" << "NEW CLIENT CONNECTED marhbaaa biiiiik" << std::endl;
+			std::cout << "NUMBER OF CLIENTS: " << clients.size() << "\033[0m" <<std::endl;
 		}
 	}
 }
@@ -186,23 +215,17 @@ void	get_requests(std::list<client_info>& clients, fd_set *read_fds)
             int r;
             char buff[1024];
             r = recv(it->sock, buff, 1024, 0);
-            if (r == 0) {
-                std::cerr << "Client Disconnected!!! r == 0" << std::endl;
-                close(it->sock);
-                std::list<client_info>::iterator it2 = it;
-                it2--;
-                clients.erase(it);
-                it = it2;
-                continue;
-            } else if (r == -1) {
-                std::cerr << "Client Disconnected!!! r < 0" << std::endl;
-                close(it->sock);
-                std::list<client_info>::iterator it2 = it;
-                it2--;
-                clients.erase(it);
-                it = it2;
-                continue;
-            } else {
+            if (r == 0 || r == -1) {
+				close(it->sock);
+				std::list<client_info>::iterator it2 = it;
+				it2--;
+				clients.erase(it);
+				it = it2;
+				std::cout << "\033[1;31m" << "CLIENT DISCONNECTED!!!" << std::endl;
+				std::cout << "\033[1;32m" << "NUMBER OF CLIENTS: " << clients.size() << "\033[0m" <<std::endl;
+				continue;
+			}
+			else {
                 it->headers_str.str.append(buff, r);
                 size_t f = it->headers_str.str.find("\r\n\r\n");
                 if (f != std::string::npos) {
@@ -210,7 +233,6 @@ void	get_requests(std::list<client_info>& clients, fd_set *read_fds)
                     int start = (f % 1024) + 4;
                     it->request.body.append(buff + start, buff + r);
                     it->request.body_len = r - start;
-					std::cerr << "{\n" << it->headers_str.str << "\n}" << std::endl;
                 }
             }
         }

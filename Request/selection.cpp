@@ -40,6 +40,7 @@ std::string get_host_ip(std::string server_name) {
     addr = &(ip->sin_addr);
     inet_ntop(AF_INET, addr, ip_str, sizeof ip_str);
     host_ip += ip_str;
+    freeaddrinfo(res);
     return host_ip;
 }
 
@@ -103,7 +104,6 @@ void    match_location(Request& request) {
     std::map<std::string, Location> locations = request.serv_block.location;
 
     request.uri = request.path;
-	std::cerr << "URI: " << request.uri<< std::endl;
 
     std::map<std::string, Location>::iterator it;
     std::vector<std::pair<std::string, Location> >  matched_locations;
@@ -114,7 +114,6 @@ void    match_location(Request& request) {
             matched_locations.push_back(*it);
         }
     }
-	std::cerr << "matched locations: " << matched_locations.size() << std::endl;
 
     request.location = matched_locations[0].second;
     size_t len = matched_locations[0].first.length();
@@ -124,7 +123,6 @@ void    match_location(Request& request) {
     for (size_t i = 1; i < matched_locations.size(); i++) {
         if (matched_locations[i].first.length() > len) {
             request.location = matched_locations[i].second;
-			std::cerr << "length: " << matched_locations[i].first.length() << std::endl;
 			if (matched_locations[i].first == "/")
 				request.location.root += "/";
             len = matched_locations[i].first.length();
@@ -137,9 +135,7 @@ void    server_block_selection(std::list<client_info>& clients, std::vector<Serv
     for (std::list<client_info>::iterator it = clients.begin(); it != clients.end(); it++) {
         if (it->headers_str.done && !it->request.matched) {
             match_server_block(it->request, servers);
-			std::cerr << "num of locations: " << it->request.serv_block.location.size() << std::endl;
             match_location(it->request);
-			std::cerr << "location root: " << it->request.location.root << std::endl;
             it->request.matched = true;
         }
     }

@@ -31,6 +31,7 @@ bool	open_out_file(client_info& client)
 	request.resp_headers = error_403();
 	client.writable = true;
 	request.file_len = 0;
+
 	return false;
 }
 
@@ -40,9 +41,8 @@ void	read_unchunked_body(client_info& client)
 
 	if (!request.out_file.is_open()) {
 		request.cont_len = atoi(request.headers["Content-Length"].c_str());
+        request.recved_bytes = 0;
 		// check for the MAX CLIENT BODY SIZE
-		std::cerr << "content length => " << request.cont_len << std::endl;
-		std::cerr << "max body =>" << request.serv_block.max_body << std::endl;
 		if (request.serv_block.yes_or_no.max_body && request.cont_len > request.serv_block.max_body) {
 			request.resp_headers = error_413();
 			client.writable = true;
@@ -51,7 +51,6 @@ void	read_unchunked_body(client_info& client)
 		}
 		if (!open_out_file(client))
 			return;
-		request.recved_bytes = 0;
 		request.out_file.write(request.body.c_str(), request.body_len);
 		request.recved_bytes += request.body_len;
 	} else if (request.recved_bytes != request.cont_len) {
@@ -159,15 +158,31 @@ void	run_cgi(client_info& client) {
 	Request& request = client.request;
 
 	cgi cg(request.path, request); // initialize the cgi
-	cg.exec(request); // execute the cgi
+    try {
+        cg.exec(request);
+    } catch (int status) {
+        if (check_error_pages(request,status))
+        {
+            request.path = request.serv_block.error_pages[status];
+            request.file.open(request.path);
+            generate_headers(request, status);
+        }
+        else {
+            generate_error_headers(request, status);
+            request.file_len = 0;
+        }
+        client.writable = true;
+        return;
+    }// execute the cgi
 	request.out_path = cg.outfile_path(); // get the output file from cgi
 	// then generate the response
 	request.file.open(request.out_path.c_str());
 	request.resp_headers =  "HTTP/1.1 200 OK\r\n";
-	request.resp_headers += ("Content-Type: text/html\r\n");
-	for (size_t i = 0; i < cg.headers.size(); i++) {
-		request.resp_headers += cg.headers[i] + "\r\n";
-	}
+    for (size_t i = 0; i < cg.headers.size(); i++) {
+        request.resp_headers += cg.headers[i] + "\r\n";
+    }
+    if (request.resp_headers.find("Content-Type:") != std::string::npos)
+        request.resp_headers += ("Content-Type: text/html\r\n");
 	request.file_len = get_file_len(request.out_path.c_str());
 	request.resp_headers += ("Content-Length: " + long_to_string(request.file_len) + "\r\n");
 	request.resp_headers += "Server: klinix\r\n";

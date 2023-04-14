@@ -14,7 +14,8 @@ std::map<int, std::string> init_map_status() {
 	m[204] = "204 No Content";
 	m[405] = "405 Method Not Allowed";
 	m[400] = "400 Bad Request";
-	m[501] = "501 Not Implemented";
+    m[501] = "501 Not Implemented";
+    m[504] = "504 Gateway Timeout";
 	return m;
 }
 
@@ -76,6 +77,13 @@ std::string error_501() {
 		   "Server: klinix\r\n"
 		   "Content-Length: 28\r\n\r\n"
 		   "<h1>501 Not Implemented</h1>";
+}
+
+std::string error_504() {
+    return "HTTP/1.1 504 Gateway Timeout\r\n"
+           "Server: klinix\r\n"
+           "Content-Length: 28\r\n\r\n"
+           "<h1>504 Gateway Timeout</h1>";
 }
 
 void	moved_permanently(Request &request) {

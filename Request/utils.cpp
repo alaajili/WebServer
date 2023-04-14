@@ -35,8 +35,6 @@ std::string	get_path(std::string str, Request &request)
         request.query += str[i];
         i++;
     }
-    std::cerr << "path: " << path << std::endl;
-    std::cerr << "query: " << request.query << std::endl;
 	return path;
 }
 

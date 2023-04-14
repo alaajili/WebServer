@@ -19,14 +19,13 @@ void    send_response(client_info& client, bool& to_drop)
 {
     if (!client.request.headers_sent) {
         int rr = send(client.sock, client.request.resp_headers.c_str(), client.request.resp_headers.length(), 0);
-		if (rr == -1) {
+		if (rr == -1 || rr == 0) {
 			close(client.sock);
 			to_drop = true;
 			return;
 		}
         client.request.sent_bytes = 0;
         client.request.headers_sent = true;
-        std::cout << "\033[1;33m" << "start sending data to client\033[0m" << std::endl;
     }
     else {
 		if (client.request.file_len) {
@@ -34,17 +33,16 @@ void    send_response(client_info& client, bool& to_drop)
             client.request.file.read(buff, 1024);
             int r = client.request.file.gcount();
             int rr = send(client.sock, buff, r, 0);
-            if (rr == -1) {
+            if (rr == -1 || rr == 0) {
                 close(client.sock);
                 to_drop = true;
                 return;
             }
             client.request.sent_bytes += rr;
-			}
+        }
 		if (client.request.sent_bytes == client.request.file_len) {
             client.request.clear();
             client.headers_str.clear();
-            std::cerr << "\033[1;32m" << "TRANSFER DATA DONE\033[0m" << std::endl;
             client.writable = false;
         }
     }

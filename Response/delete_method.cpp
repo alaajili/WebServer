@@ -105,7 +105,6 @@ void    delete_method(client_info& client)
             request.resp_headers = No_Content_204();
 			client.writable = true;
 			request.file_len = 0;
-            std::cerr << "HERE !!" << std::endl;
 			return;
         }
         else{
